@@ -1,7 +1,9 @@
 import { prisma } from "../../../../lib/prisma";
 import { NextRequest } from "next/server";
 
-export const GET = async (req, { params }) => {
+export const GET = async (
+  req, { params }
+) => {
   const { id } = params;
 
   try {
@@ -28,9 +30,11 @@ export const GET = async (req, { params }) => {
 };
 
 
-export const PUT = async (req, { params }) => {
+export const PUT = async (
+  request, { params }
+) => {
   const { id } = params;
-  const data = await req.json();
+  const data = await request.json();
   const { statut } = data;
 
   try {

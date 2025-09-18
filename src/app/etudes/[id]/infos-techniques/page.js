@@ -366,7 +366,7 @@ export default function InfosTechniquesPage() {
     <div className="p-12">
     {loading ? (
       <div className="flex justify-center items-center h-64">
-        <Spin size="large" tip="Chargement des données..." />
+        <Spin size="large" />
       </div>
     ) : (
         <>

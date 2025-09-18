@@ -1,11 +1,12 @@
 "use client";
 import { useParams } from 'next/navigation';
-import React, { useRef, useState, forwardRef, useImperativeHandle } from "react";
-import { Button, Spin, Upload, Modal } from "antd";
+import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { Button, Spin, Upload, Modal, Collapse, Divider, Input } from "antd";
 import { TypingAnimation } from "../../../../components/ui/typing-animation";
 import { SaveButton } from "../../../../components/general/saveButton";
 import { UploadOutlined } from '@ant-design/icons';
 import Image from 'next/image';
+import { generalFetch, generalUpdate } from '../../data';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import {
@@ -15,6 +16,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+const { TextArea } = Input;
 
 /* ---------------- Draggable list item ---------------- */
 const DraggableUploadListItem = ({ originNode, file }) => {
@@ -137,20 +140,64 @@ const ImageHandler = forwardRef(function ImageHandler(_, ref) {
 });
 
 
-function ImagePanel({section, parkingIdx}) {
+function ImagePanel({ sectionName, parkingIdx}) {
     const childRef = useRef(null);
-    const onSave = async () => {
-        // Implement save logic here
-    }
+    const [description, setDescription] = useState('');
 
     return (
-    <div className="p-12">
-        <h1 className='text-2xl font-bold mb-8'>{section}</h1>
-        <ImageHandler ref={childRef} />
-        <div className="flex align-center justify-start mt-10">
-            <SaveButton onSave={onSave} />
+    <div className="px-6">
+        <Divider orientation="left" plain>
+            <span className="text-lg font-bold">{sectionName}</span>
+        </Divider>
+
+        <div className="mb-8">
+        <TextArea
+            rows={2}
+            value={description}
+            onChange={e =>
+                 setDescription(e.target.value)
+            }
+            placeholder="Ex. Départ poste extérieur au bâtiment…"
+        />
         </div>
+
+
+        
+        <ImageHandler ref={childRef} />
+        <div className="my-20"/>
     </div>
+    );
+}
+
+
+function ParkingPanel({ pIndex }) {
+    const titles = ["Arrivée Réseau", "Local TGBT", "Parking"]
+    
+    return (
+        <div className="space-y-8">
+            {titles.map((title, idx) => (
+                <ImagePanel 
+                    key={idx}
+                    sectionName={title}
+                    parkingIdx={pIndex}
+                />
+            ))}
+        </div>
+    );
+}
+
+function InfosGeneralesPanel() {
+    const titles = ["Plan Réseau", "Accès Copro", "Accès Parking"]
+    return (
+        <div className="space-y-8">
+            {titles.map((title, idx) => (
+                <ImagePanel 
+                    key={idx}
+                    sectionName={title}
+                    parkingIdx={0} // No parking index for general images
+                />
+            ))}
+        </div>
     );
 }
   
@@ -159,7 +206,38 @@ function ImagePanel({section, parkingIdx}) {
 export default function ImagesAvantPage() {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
+  const [pd, setPd] = useState([]); // parking details from infos-generales
   
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      // 1) Data from infos-generales
+      const gen = await generalFetch('/api/infos-generales', id);
+      const parkingDetails = Array.isArray(gen?.parking_details) ? gen.parking_details : [];
+      setPd(parkingDetails);
+    })()
+    .finally(() => setLoading(false));
+  }, [id]);
+
+  const items = [
+    {
+      key: 'info',
+      label: <span className="text-lg font-bold">Infos générales</span>,
+      forceRender: true,
+      children: <InfosGeneralesPanel />,
+    },
+    ... pd.map((p, index) => ({
+    key: index,
+    label: <span className="text-lg font-bold">Parking {index + 1} — {p.interieur ? 'Intérieur' : 'Extérieur'}</span>,
+    forceRender: true,
+    children: (
+      <ParkingPanel
+        pIndex={index+1}
+      />
+    ),
+  }))
+    ];
+
 
   const onSave = async () => {
     const ordered = childRef.current?.getOrderedFiles() || [];
@@ -196,19 +274,30 @@ export default function ImagesAvantPage() {
 
   return (
     <div className="p-12">
-      <div className="flex justify-center mb-8">
-        <TypingAnimation className="text-3xl font-bold text-center">
-          Images Avant
-        </TypingAnimation>
-      </div>
+      
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <Spin size="large" tip="Chargement des données..." />
+          <Spin size="large" />
         </div>
       ) : (
         <>
-          $
+        <div className="flex justify-center mb-8">
+        <TypingAnimation className="text-3xl font-bold text-center">
+          Images Avant
+        </TypingAnimation>
+        </div>
+
+        <Collapse
+            items={items}
+            defaultActiveKey={items.length ? [items[0].key] : []}
+            destroyOnHidden={false}
+        />
+
+        <div className="flex align-center justify-start mt-10">
+            <SaveButton onSave={onSave} />
+        </div>
+
         </>
       )}
     </div>
