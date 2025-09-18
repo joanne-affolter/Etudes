@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 const headers = {
   "Content-Type": "application/json",
-  "X-API-KEY": process.env.CRAFTMYPDF_API_KEY,
+  "X-API-KEY": "82c4MjAwMTY6MjAxMzE6QTVKMjFrak1Ga1ZCYTVRNQ=",
 };
 
 const apiUrl = "https://api.craftmypdf.com/v1/create";
