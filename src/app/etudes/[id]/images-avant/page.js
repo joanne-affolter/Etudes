@@ -134,7 +134,7 @@ const ImageHandler = forwardRef(function ImageHandler(_, ref) {
         />
       </>
     );
-  });
+});
   
 
 /* ---------------- Page ---------------- */

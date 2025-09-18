@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint"
   },
@@ -40,5 +41,14 @@
     "prisma": "^6.16.2",
     "tailwindcss": "^4.1.13",
     "tw-animate-css": "^1.3.8"
-  }
+  },
+  "trustedDependencies": [
+    "@prisma/client",
+    "@prisma/engines",
+    "prisma",
+    "sharp",
+    "@tailwindcss/oxide",
+    "unrs-resolver"
+  ],
+ 
 }
