@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+//datasource db {
+//  provider = "postgresql"
+//  url      = env("DATABASE_URL")
+//}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+
+
+
+model InfosGenerales {
+  id                    Int     @id
+  adresse_site          String
+  numero_affaire        String
+  parking_interieur     Boolean
+  parking_exterieur     Boolean
+  nombre_parking        Int
+  nombre_places         Int
+  prefinancement        Boolean
+  type_chauffage        String
+  coffret               String
+  date_construction     String
+  date_visite_technique String
+  date_ag               String
+  date_debut_travaux    String
+  date_fin_travaux      String
+  moyen_access_copro    String
+  moyen_access_parking  String
+  parking_details       Json
+}
+
+model Contact {
+  id                          Int    @id
+  reference_enedis            String
+  adresse_enedis              String
+  maitre_ouvrage_nom          String
+  maitre_ouvrage_tel          String
+  maitre_ouvrage_mail         String
+  syndic_nom                  String
+  syndic_adresse              String
+  syndic_interlocteur         String
+  syndic_tel                  String
+  syndic_mail                 String
+  tiers_mandate_adresse       String @default("")
+  tiers_mandate_interlocuteur String @default("")
+  tiers_mandate_mail          String @default("")
+  tiers_mandate_nom           String @default("")
+  tiers_mandate_tel           String @default("")
+}
+
+model Prefinancement {
+  id                  Int     @id
+  confection_niche    Boolean
+  creation_placard    Boolean
+  creation_tranchee   Boolean
+  percements          Boolean
+  pose_socles         Boolean
+  travaux_specialises Boolean
+  pose_armoire        Boolean
+  deroulage_terre     Boolean
+  dta                 Boolean
+  amiante             Boolean
+  pose_canivaux       Boolean
+  terrassement        Boolean
+  dta2                Boolean
+  c15                 Boolean
+  stop_roues          Boolean @default(false) 
+}
+
+model Material {
+  id        Int
+  section   String
+  items     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([id, section])
+}
+
+model MaterielInfoTechnique {
+  id          Int
+  parking_idx Int
+  section     String
+  items       Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@id([id, parking_idx, section])
+}
+
+model InfosTechniquesMeta {
+  id          Int
+  parking_idx Int
+  description String
+  travees     Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([id, parking_idx])
+}
+
+model ImageUpload {
+  id          Int      @id @default(autoincrement())
+  projectId   Int
+  section     String
+  title       String
+  parking_idx Int
+  description String
+  fileUrl     String
+  uploadedAt  DateTime @default(now())
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  reference   String   @unique
+  adresse    String  
+  statut      String
+  
+  createdAt DateTime @default(now())
+}
