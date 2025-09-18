@@ -1,8 +1,8 @@
-import React from 'react';
-import { DatePicker } from 'antd';
+
+import { redirect } from 'next/navigation';
 
 const App = () => {
-  return ;
+  redirect('/etudes');
 };
 
 export default App;
