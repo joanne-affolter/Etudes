@@ -6,7 +6,8 @@ import { CheckCircleOutlined, CloseCircleOutlined, HomeOutlined } from "@ant-des
 
 import { Accueil, EnCours, Archives, DrawerNew } from './components';
 import {fetchProjects, createProject, updateStatut} from './data';
-import { Router } from 'next/router';
+
+import Image from 'next/image';
 
 import { useRouter } from "next/navigation";
 const { Header, Content, Sider, Footer } = Layout;

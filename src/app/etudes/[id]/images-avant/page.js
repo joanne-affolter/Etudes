@@ -135,13 +135,31 @@ const ImageHandler = forwardRef(function ImageHandler(_, ref) {
       </>
     );
 });
+
+
+function ImagePanel({section, parkingIdx}) {
+    const childRef = useRef(null);
+    const onSave = async () => {
+        // Implement save logic here
+    }
+
+    return (
+    <div className="p-12">
+        <h1 className='text-2xl font-bold mb-8'>{section}</h1>
+        <ImageHandler ref={childRef} />
+        <div className="flex align-center justify-start mt-10">
+            <SaveButton onSave={onSave} />
+        </div>
+    </div>
+    );
+}
   
 
 /* ---------------- Page ---------------- */
-export default function ImagesApresPage() {
+export default function ImagesAvantPage() {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const childRef = useRef(null);
+  
 
   const onSave = async () => {
     const ordered = childRef.current?.getOrderedFiles() || [];
@@ -190,10 +208,7 @@ export default function ImagesApresPage() {
         </div>
       ) : (
         <>
-          <ImageHandler ref={childRef} />
-          <div className="flex align-center justify-start mt-10">
-            <SaveButton onSave={onSave} />
-          </div>
+          $
         </>
       )}
     </div>
