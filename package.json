@@ -49,6 +49,6 @@
     "sharp",
     "@tailwindcss/oxide",
     "unrs-resolver"
-  ],
+  ]
  
 }
