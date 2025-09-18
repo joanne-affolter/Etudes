@@ -5,6 +5,7 @@ import { Button, Spin, Upload, Modal } from "antd";
 import { TypingAnimation } from "../../../../components/ui/typing-animation";
 import { SaveButton } from "../../../../components/general/saveButton";
 import { UploadOutlined } from '@ant-design/icons';
+import Image from 'next/image';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import {
@@ -35,93 +36,106 @@ const DraggableUploadListItem = ({ originNode, file }) => {
   );
 };
 
-/* ---------------- Upload + DnD + Preview ---------------- */
-const ImageHandler = forwardRef(function ImageHandler(_, ref) {
-  const [fileList, setFileList] = useState([
-    {
-      uid: '-1',
-      name: 'xxx.png',
-      status: 'done',
-      url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      thumbUrl:
-        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    },
-  ]);
-  const [preview, setPreview] = useState({ open: false, src: '', title: '' });
-
-  // Expose ordered list to parent
-  useImperativeHandle(ref, () => ({
-    getOrderedFiles: () => [...fileList], // already in screen order
-  }));
-
-  const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
-
-  const onDragEnd = ({ active, over }) => {
-    if (active.id !== over?.id) {
-      setFileList((prev) => {
-        const from = prev.findIndex((i) => i.uid === active.id);
-        const to = prev.findIndex((i) => i.uid === over?.id);
-        return arrayMove(prev, from, to);
-      });
-    }
-  };
-
-  // Keep files local (no auto upload)
-  const beforeUpload = () => false;
-  const onChange = ({ fileList: newList }) => setFileList(newList);
-  const onRemove = async () => { /* optionally delete on server */ };
-
-  const toDataUrl = (file) =>
-    new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(file);
-    });
-
-  const handlePreview = async (file) => {
-    let src = file.url || file.preview || file.thumbUrl;
-    if (!src && file.originFileObj) {
-      src = await toDataUrl(file.originFileObj);
-      file.preview = src;
-    }
-    setPreview({ open: true, src: src || '', title: file.name || 'Aperçu' });
-  };
-
-  return (
-    <>
-      <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-        <SortableContext items={fileList.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
-          <Upload
-            fileList={fileList}
-            listType="picture"
-            beforeUpload={beforeUpload}
-            multiple
-            accept="image/*"
-            onChange={onChange}
-            onRemove={onRemove}
-            onPreview={handlePreview}
-            showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
-            itemRender={(originNode, file) => (
-              <DraggableUploadListItem originNode={originNode} file={file} />
-            )}
-          >
-            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-          </Upload>
-        </SortableContext>
-      </DndContext>
-
+/* ---------------- Preview ---------------- */
+function PreviewModal({ open, src, title, onClose }) {
+    return (
       <Modal
-        open={preview.open}
-        title={preview.title}
+        open={open}
+        title={title}
         footer={null}
-        onCancel={() => setPreview({ open: false, src: '', title: '' })}
+        onCancel={onClose}
         width={800}
       >
-        {preview.src ? <img alt="preview" src={preview.src} style={{ width: '100%' }} /> : null}
+        {src ? <Image alt="preview" src={src} style={{ width: '100%' }} /> : null}
       </Modal>
-    </>
-  );
-});
+    );
+  }
+
+/* ---------------- Upload + DnD  ---------------- */
+const ImageHandler = forwardRef(function ImageHandler(_, ref) {
+    const [fileList, setFileList] = useState([
+      {
+        uid: '-1',
+        name: 'xxx.png',
+        status: 'done',
+        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        thumbUrl:
+          'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+      },
+    ]);
+  
+    const [preview, setPreview] = useState({ open: false, src: '', title: '' });
+  
+    useImperativeHandle(ref, () => ({
+      getOrderedFiles: () => [...fileList],
+    }));
+  
+    const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
+  
+    const onDragEnd = ({ active, over }) => {
+      if (active.id !== over?.id) {
+        setFileList(prev => {
+          const from = prev.findIndex(i => i.uid === active.id);
+          const to = prev.findIndex(i => i.uid === over?.id);
+          return arrayMove(prev, from, to);
+        });
+      }
+    };
+  
+    // local only; no auto-upload
+    const beforeUpload = () => false;
+    const onChange = ({ fileList: newList }) => setFileList(newList);
+    const onRemove = async () => {};
+  
+    const toDataUrl = file =>
+      new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+  
+    const handlePreview = async file => {
+      let src = file.url || file.preview || file.thumbUrl;
+      if (!src && file.originFileObj) {
+        src = await toDataUrl(file.originFileObj);
+        file.preview = src;
+      }
+      setPreview({ open: true, src: src || '', title: file.name || 'Aperçu' });
+    };
+  
+    return (
+      <>
+        <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+          <SortableContext items={fileList.map(i => i.uid)} strategy={verticalListSortingStrategy}>
+            <Upload
+              fileList={fileList}
+              listType="picture"
+              beforeUpload={beforeUpload}
+              multiple
+              accept="image/*"
+              onChange={onChange}
+              onRemove={onRemove}
+              onPreview={handlePreview}
+              showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
+              itemRender={(originNode, file) => (
+                <DraggableUploadListItem originNode={originNode} file={file} />
+              )}
+            >
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </SortableContext>
+        </DndContext>
+  
+        <PreviewModal
+          open={preview.open}
+          src={preview.src}
+          title={preview.title}
+          onClose={() => setPreview({ open: false, src: '', title: '' })}
+        />
+      </>
+    );
+  });
+  
 
 /* ---------------- Page ---------------- */
 export default function ImagesApresPage() {

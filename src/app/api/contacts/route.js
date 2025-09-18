@@ -1,14 +1,15 @@
 import { prisma } from "../../../lib/prisma";
 
 
-export const GET = async (request) => {
-  const { searchParams } = new URL(request.url);
-  const id = parseInt(searchParams.get("id"), 10);
+export const GET = async (req, { params }) => {
+  const { searchId } = await params;
+  const id = parseInt(searchId, 10);
 
-  const data = await prisma.prefinancement.findUnique({
+  const contacts = await prisma.contact.findUnique({
       where: { id },
   });
-  return new Response(JSON.stringify(data), {
+
+  return new Response(JSON.stringify(contacts), {
     headers: { "Content-Type": "application/json" },
   });
 };
@@ -17,7 +18,7 @@ export const POST = async (req) => {
   const data = await req.json();
 
   try {
-    const updated = await prisma.prefinancement.upsert({
+    const updated = await prisma.contact.upsert({
       where: { id: data.id },
       update: data,
       create: data,
@@ -26,7 +27,7 @@ export const POST = async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("Error in POST api/materiel :", err);
+    console.error("Error in POST api/etudes/ :", err);
     return new Response(JSON.stringify({ error: "Failed to create project" }), {
       status: 500,
     });

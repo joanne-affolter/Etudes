@@ -1,24 +1,25 @@
 import { prisma } from "../../../lib/prisma";
 
 
-export const GET = async (request) => {
-  const { searchParams } = new URL(request.url);
-  const id = parseInt(searchParams.get("id"), 10);
+export const GET = async (req, { params }) => {
+  const { searchId } = await params;
+  const id = parseInt(searchId, 10);
 
-  const contacts = await prisma.contact.findUnique({
+  const data = await prisma.infosGenerales.findUnique({
       where: { id },
   });
 
-  return new Response(JSON.stringify(contacts), {
+  return new Response(JSON.stringify(data), {
     headers: { "Content-Type": "application/json" },
   });
 };
+
 
 export const POST = async (req) => {
   const data = await req.json();
 
   try {
-    const updated = await prisma.contact.upsert({
+    const updated = await prisma.infosGenerales.upsert({
       where: { id: data.id },
       update: data,
       create: data,

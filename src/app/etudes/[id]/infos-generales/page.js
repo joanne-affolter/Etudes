@@ -110,7 +110,7 @@ function FormInfos({id, initialValues}) {
                 <Input placeholder="10 rue de la Paix, Paris" />
             </Form.Item>
 
-            <Form.Item name="numero_affaire" label="Numéro d'affaire">
+            <Form.Item name="numero_affaire" label="Numéro d&apos;affaire">
                 <Input placeholder="ex: AFF-001" />
             </Form.Item>
 
@@ -125,11 +125,11 @@ function FormInfos({id, initialValues}) {
             <div className="my-15"/>
 
             
-            <Form.Item name="moyen_access_copro" label="Moyen d'accès à la copropriété">
+            <Form.Item name="moyen_access_copro" label="Moyen d&apos;accès à la copropriété">
                 <Input placeholder="ex: Clé, Badge" />
             </Form.Item>
 
-            <Form.Item name="moyen_access_parking" label="Moyen d'accès au parking">
+            <Form.Item name="moyen_access_parking" label="Moyen d&apos;accès au parking">
                 <Input placeholder="ex: Clé, Badge" />
             </Form.Item>
 
@@ -151,8 +151,8 @@ function FormInfos({id, initialValues}) {
                 <Select.Option value="REMBT">REMBT</Select.Option>
                 <Select.Option value="ECP2D">ECP2D</Select.Option>
                 <Select.Option value="ECP3D">ECP3D</Select.Option>
-                <Select.Option value="poste_integre">Poste intégré à l'immeuble</Select.Option>
-                <Select.Option value="poste_exterieur">Poste extérieur à l'immeuble</Select.Option>
+                <Select.Option value="poste_integre">Poste intégré à l&apos;immeuble</Select.Option>
+                <Select.Option value="poste_exterieur">Poste extérieur à l&apos;immeuble</Select.Option>
             </Select>
             </Form.Item>
 

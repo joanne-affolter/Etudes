@@ -139,7 +139,7 @@ export default function MaterielPage() {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, DEFAULTS]);
 
   // save helpers
   const saveKeys = async (keys) => {

@@ -1,9 +1,9 @@
 import { prisma } from "../../../lib/prisma";
 
 
-export const GET = async (request) => {
-  const { searchParams } = new URL(request.url);
-  const id = parseInt(searchParams.get("id"), 10);
+export const GET = async (req, { params }) => {
+  const { searchId } = await params;
+  const id = parseInt(searchId, 10);
 
   const data = await prisma.material.findMany({
       where: { id },

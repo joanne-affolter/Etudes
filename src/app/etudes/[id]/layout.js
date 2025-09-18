@@ -6,6 +6,7 @@ import { Layout, Menu, Flex } from 'antd';
 import { InfoCircleOutlined, UserOutlined, TruckOutlined, SettingOutlined, CalculatorOutlined, LoginOutlined, LogoutOutlined} from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 const { Header, Content, Sider, Footer } = Layout;
+import Image from 'next/image';
 
 
 
@@ -61,7 +62,7 @@ export default function EtudeLayout({ children }) {
     >
       <Header style={{ padding: '0 24px', backgroundColor: 'var(--color-primary)' }} >
       <Flex justify="space-between"  align="center">
-          <img src="/logo.png" alt="Logo" width={50} height={50}             
+          <Image src="/logo.png" alt="Logo" width={50} height={50}             
             style={{
               padding: 0,
               margin: 0, 

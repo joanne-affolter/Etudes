@@ -91,7 +91,7 @@ export default function DashboardLayout({ children }) {
       console.error("Action failed:", e);
       // TODO: revert optimistic state if needed
     }
-  }, []);
+  }, [router]);
 
   const onSaveNew = React.useCallback(async (data) => {
     try {
@@ -119,7 +119,7 @@ export default function DashboardLayout({ children }) {
       {/* Header (independent) */}
       <Header style={{ padding: '0 24px', backgroundColor: 'var(--color-primary)' }} >
       <Flex justify="space-between"  align="center">
-          <img src="/logo.png" alt="Logo" width={50} height={50}             
+          <Image src="/logo.png" alt="Logo" width={50} height={50}             
             style={{
               padding: 0,
               margin: 0, 

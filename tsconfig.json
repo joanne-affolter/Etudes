@@ -28,7 +28,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/app/api/materiel/route.js", "src/app/api/infos-techniques/route.js", "src/app/api/infos-generales/route.js", "src/app/api/info-techniques-meta/route.js", "src/app/api/etudes/route.js", "src/app/api/etudes/[id]/route.js", "src/app/api/contacts/route.js"  ],
   "exclude": [
     "node_modules"
   ]
