@@ -95,7 +95,7 @@ function FormContacts({id, initialValues}) {
             </Form.Item>
 
             <Form.Item name="adresse_enedis" label="Adresse">
-                <Input placeholder="ex: 19 rue de Enedis" />
+                <Input placeholder="12 rue du Centre 93160 Noisy-le-Grand" />
             </Form.Item>
 
             <Form.Item label="Maître d'ouvrage" name="maitre_ouvrage_nom">
@@ -103,6 +103,7 @@ function FormContacts({id, initialValues}) {
                 <Select.Option value="Lucas CHAUVEAU">Lucas CHAUVEAU</Select.Option>
                 <Select.Option value="Tiphaine WATELLE">Tiphaine WATELLE</Select.Option>
                 <Select.Option value="Amira ABID">Amira ABID</Select.Option>
+                <Select.Option value="Jennifer DOS SANTOS FERREIRA">Jennifer DOS SANTOS FERREIRA</Select.Option>
             </Select>
             </Form.Item>
 
