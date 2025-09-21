@@ -15,7 +15,9 @@ const choicesMaitreOuvrage = [
     { value: 'Lucas CHAUVEAU', label: 'Lucas CHAUVEAU', telephone: '06 99 96 21 90', email: 'lucas.chaveau@enedis.fr' },
     { value: 'Tiphaine WATELLE', label: 'Tiphaine WATELLE', telephone: '06 65 44 87 70', email: 'tiphaine.watelle@enedis.fr' },
     { value: 'Amira ABID', label: 'Amira ABID', telephone: '06 64 17 80 58', email: 'amira-externe.abid@enedis.fr' },
-  ];
+    { value: 'Jennifer DOS SANTOS FERREIRA', label: 'Jennifer DOS SANTOS FERREIRA', telephone: '07 62 68 31 10', email: 'jennifer.dos-santos-ferreira@enedis.fr' },
+
+];
   
 
 
@@ -56,7 +58,7 @@ function FormContacts({id, initialValues}) {
     const mergedInitials = useMemo(() => {
         const newData = {
           reference_enedis: 'ENEDIS REA - DR EST',
-          adresse_enedis: '',
+          adresse_enedis: '12 rue du Centre 93160 Noisy-le-Grand',
           maitre_ouvrage_nom: '',
           maitre_ouvrage_tel: '',
           maitre_ouvrage_mail:'',
