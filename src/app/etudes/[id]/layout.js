@@ -52,61 +52,83 @@ export default function EtudeLayout({ children }) {
     router.push(`/etudes/${id}/${key}`);
   };
 
-  const generatePDF = async () => {
-    try {
-      setIsGenerating(true);
-  
-      // 1) Fetch project data
-      const res = await fetch(`/api/all-data/${id}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Failed to fetch project data`);
-      const data = await res.json();
-      console.log("Fetched project data for PDF generation:", data);
-      
-      // 1bis) Download fetched JSON before generating PDF
-      const downloadJson = (obj, filename) => {
-        const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
+const generatePDF = async () => {
+  try {
+    setIsGenerating(true);
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
+    // 1) Fetch project data
+    const res = await fetch(`/api/all-data/${id}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Failed to fetch project data`);
+    const data = await res.json();
+    console.log("Fetched project data for PDF generation:", data);
 
-        URL.revokeObjectURL(url);
-      };
+    // 1bis) Download fetched JSON before generating PDF
+    const downloadJson = (obj, filename) => {
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    downloadJson(data, `project_data_${id}.json`);
 
-downloadJson(data, `project_data_${id}.json`);
+    // util: download any Blob with a filename
+    const downloadBlob = (blob, filename) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    };
 
-      // 2) Ask server to generate PDF
-      const gen = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-  
-      if (!gen.ok) {
-        const errText = await gen.text().catch(() => '');
-        throw new Error(`PDF generation failed (${gen.status}): ${errText}`);
-      }
-  
-      const json = await gen.json();
-      const pdfUrl = json?.file || json?.url || json?.download_url;
-      if (!pdfUrl) throw new Error('No file URL returned by /api/generate');
-  
-      const filename = `etude_enedis_${id}.pdf`;
-  
-      // 3) Open in a new window/tab
-      window.open(pdfUrl, '_blank', 'noopener,noreferrer');
-  
-      messageApi.success('Le PDF a été généré, ouvert et téléchargé automatiquement.');
-    } catch (error) {
-      console.error(error);
-      messageApi.error(`Erreur lors de la génération du PDF : ${error.message}`);
-    } finally {
-      setIsGenerating(false);
+    // 2) Ask server to generate PDF (Carbone / autre)
+    const gen = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!gen.ok) {
+      const errText = await gen.text().catch(() => '');
+      throw new Error(`PDF generation failed (${gen.status}): ${errText}`);
     }
-  };
 
+    // 2bis) Détecter si le backend renvoie un PDF binaire ou du JSON avec URL
+    const ct = gen.headers.get('content-type') || '';
+    const filename = `etude_enedis_${id}.pdf`;
+
+    if (ct.includes('application/pdf')) {
+      // Backend renvoie le PDF directement (binaire)
+      const blob = await gen.blob();
+      downloadBlob(blob, filename);
+      messageApi.success('PDF généré et téléchargé.');
+      return;
+    }
+
+    // Sinon on suppose un JSON
+    const json = await gen.json().catch(() => ({}));
+    const pdfUrl = json?.file || json?.url || json?.download_url;
+
+    if (!pdfUrl) {
+      throw new Error('No file URL returned by /api/generate');
+    }
+
+    // 3) Ouvrir l’URL (et laisser le navigateur gérer le téléchargement)
+    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+    messageApi.success('Le PDF a été généré et ouvert.');
+
+  } catch (error) {
+    console.error(error);
+    messageApi.error(`Erreur lors de la génération du PDF : ${error.message}`);
+  } finally {
+    setIsGenerating(false);
+  }
+};
 
   return (
     <Layout
