@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Étude Enedis – {{project.code}}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --primary:#0a3a82; --accent:#0e6efb; --muted:#6b7280; --border:#e5e7eb; --bg:#ffffff;
+    --h1:26pt; --h2:18pt; --h3:13pt; --text:10.5pt; --small:9pt;
+  }
+  @page { size: A4; margin: 18mm 15mm 20mm 15mm; }
+  html,body{ background:#fff; font-family: Inter, Arial, sans-serif; color:#111827; }
+  body{ counter-reset: page; }
+  header{
+    position: fixed; top: -14mm; left: 0; right: 0; height: 10mm;
+    padding: 2mm 15mm; font-size: var(--small); color:#374151; border-bottom: 1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  footer{
+    position: fixed; bottom: -14mm; left: 0; right: 0; height: 12mm;
+    padding: 2mm 15mm; font-size: var(--small); color:#6b7280; border-top: 1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  footer .page:after{ content: counter(page); }
+  h1{ font-size: var(--h1); margin:0 0 6mm; color:var(--primary); }
+  h2{ font-size: var(--h2); margin:0 0 4mm; color:#111827; border-bottom:2px solid var(--border); padding-bottom:2mm; }
+  h3{ font-size: var(--h3); margin:6mm 0 3mm; color:#111827; }
+  p, li, td, th{ font-size: var(--text); line-height: 1.4; }
+  .muted{ color: var(--muted); }
+  .chip{ display:inline-block; padding:2px 8px; border:1px solid var(--border); border-radius:999px; font-size:9pt; color:#374151; }
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .grid-3{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .card{ border:1px solid var(--border); border-radius:10px; padding:5mm; background:var(--bg); }
+  table{ width:100%; border-collapse: collapse; margin: 3mm 0 6mm; }
+  th, td{ border:1px solid var(--border); padding:3mm; vertical-align: top; }
+  th{ background:#f8fafc; text-align:left; }
+  .kpi{ display:flex; gap:6mm; flex-wrap:wrap; margin: 2mm 0 4mm; }
+  .kpi .item{ border:1px solid var(--border); border-radius:10px; padding:4mm 5mm; min-width: 42mm; }
+  .kpi .lbl{ font-size:9pt; color:var(--muted); }
+  .kpi .val{ font-size:12pt; font-weight:600; }
+  .cover{ display:flex; flex-direction:column; justify-content:center; height: calc(100vh - 40mm); }
+  .title{ font-size:34pt; color:var(--primary); margin-bottom:4mm; }
+  .subtitle{ font-size:14pt; color:#1f2937; }
+  .note{ margin-top:8mm; color:#374151; }
+  .page-break{ page-break-before: always; }
+  .img{ width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  .small{ font-size: var(--small); }
+  .stamp{ border:1px dashed var(--border); padding:3mm; text-align:center; color:#6b7280; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>Étude Enedis • {{project.code}}</div>
+  <div>{{project.date}}</div>
+</header>
+
+<footer>
+  <div>{{client.owner}} — {{client.owner_email}}</div>
+  <div class="page">Page </div>
+</footer>
+
+<!-- COUVERTURE -->
+<section class="cover">
+  <div class="title">Étude Enedis</div>
+  <div class="subtitle">{{project.code}}</div>
+  <p class="note">Ce dossier technique sera envoyé au syndic pour validation.</p>
+  <div class="kpi">
+    <div class="item">
+      <div class="lbl">Type</div>
+      <div class="val">{{project.type}}</div>
+    </div>
+    <div class="item">
+      <div class="lbl">Adresse</div>
+      <div class="val">{{project.address}}</div>
+    </div>
+    <div class="item">
+      <div class="lbl">Date</div>
+      <div class="val">{{project.date}}</div>
+    </div>
+  </div>
+</section>
+
+<div class="page-break"></div>
+
+<!-- SOMMAIRE -->
+<section>
+  <h2>SOMMAIRE</h2>
+  <ol>
+    <li>Introduction</li>
+    <li>Informations Techniques</li>
+    <li>État Initial</li>
+    <li>État après Travaux</li>
+    <li>Matériel référencé Enedis</li>
+    <li>Lexique</li>
+  </ol>
+</section>
+
+<div class="page-break"></div>
+
+<!-- PRÉSENTATION / INFOS GÉNÉRALES -->
+<section>
+  <h2>Informations générales</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Identification</h3>
+      <table>
+        <tr><th>Type</th><td>{{project.type}}</td></tr>
+        <tr><th>Date</th><td>{{project.date}}</td></tr>
+        <tr><th>Adresse</th><td>{{project.address}}</td></tr>
+        <tr><th>N° d’affaire</th><td>{{project.code}}</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Maître d’Ouvrage</h3>
+      <div>{{owner.name}}</div>
+      <div>{{owner.address}}</div>
+      <div>{{owner.phone}}</div>
+      <div>{{owner.email}}</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:6mm">
+    <div class="card">
+      <h3>Prestataire</h3>
+      <div>{{vendor.name}}</div>
+      <div>{{vendor.address}}</div>
+      <div>{{vendor.phone}}</div>
+      <div>{{vendor.email}}</div>
+    </div>
+    <div class="card">
+      <h3>Syndic / Bailleur</h3>
+      <div>{{syndic.name}}</div>
+      <div>{{syndic.address}}</div>
+      <div>{{syndic.phone}}</div>
+      <div>{{syndic.email}}</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:8mm">Signatures et cachets</h3>
+  <div class="grid-2">
+    <div class="stamp">ENEDIS Validation théorique — Précédé de la mention "lu et approuvé"</div>
+    <div class="stamp">ENEDIS Validation pratique — Précédé de la mention "lu et approuvé"</div>
+    <div class="stamp">Syndicat des copropriétaires — Signature</div>
+    <div class="stamp">Bureau d'études — Signature</div>
+  </div>
+</section>
+
+<div class="page-break"></div>
+
+<!-- CONTEXTE -->
+<section>
+  <h2>Contexte</h2>
+  <p>{{context.description}}</p>
+
+  <table>
+    <tr>
+      <th>N° Parking</th><th>Nb Places</th><th>Puissance IRVE</th><th>Type</th>
+    </tr>
+    {{#each context.parkings}}
+    <tr>
+      <td>{{this.number}}</td>
+      <td>{{this.spots}}</td>
+      <td>{{this.power}}</td>
+      <td>{{this.type}}</td>
+    </tr>
+    {{/each}}
+  </table>
+
+  <h3>Déroulement du chantier</h3>
+  <table>
+    <tr><th>Visite technique</th><td>{{timeline.visit}}</td></tr>
+    <tr><th>AG</th><td>{{timeline.ag}}</td></tr>
+    <tr><th>Début chantier</th><td>{{timeline.start}}</td></tr>
+    <tr><th>Fin chantier</th><td>{{timeline.end}}</td></tr>
+  </table>
+</section>
+
+<div class="page-break"></div>
+
+<!-- PRÉFINANCEMENT -->
+<section>
+  <h2>Préfinancement<
