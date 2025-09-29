@@ -18,13 +18,12 @@ export async function POST(request) {
       export_type: "json",
       expiration: 60,
       output_file: "etude_enedis.pdf",
-      //image_resample_res: 600,
       direct_download: 0,
       cloud_storage: 1,
       password_protected: true,
       password: "string",
       resize_images: 0,
-      image_resample_res: 300,
+      image_resample_res: 72,
     };
 
     const response = await fetch(apiUrl, {
