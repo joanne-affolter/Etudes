@@ -61,7 +61,22 @@ export default function EtudeLayout({ children }) {
       if (!res.ok) throw new Error(`Failed to fetch project data`);
       const data = await res.json();
       console.log("Fetched project data for PDF generation:", data);
-  
+      
+      // 1bis) Download fetched JSON before generating PDF
+      const downloadJson = (obj, filename) => {
+        const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+
+        URL.revokeObjectURL(url);
+      };
+
+downloadJson(data, `project_data_${id}.json`);
+
       // 2) Ask server to generate PDF
       const gen = await fetch('/api/generate', {
         method: 'POST',
