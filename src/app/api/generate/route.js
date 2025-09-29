@@ -45,7 +45,7 @@ export async function POST(request) {
 
     const requestBody = {
       template_id: "61077b239be18a0c",
-      data: paramWithProxy, //JSON.stringify(param), 
+      data: param, //JSON.stringify(param), 
       load_data_from: null,
       export_type: "json",
       expiration: 60,
