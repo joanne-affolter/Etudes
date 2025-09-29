@@ -13,7 +13,7 @@ export async function POST(request) {
 
     const requestBody = {
       template_id: "61077b239be18a0c",
-      data: JSON.stringify(param), 
+      data: param, //JSON.stringify(param), 
       load_data_from: null,
       export_type: "json",
       expiration: 60,
@@ -23,7 +23,7 @@ export async function POST(request) {
       password_protected: true,
       password: "string",
       resize_images: 0,
-      image_resample_res: 72,
+      image_resample_res: 150 ,
     };
 
     const response = await fetch(apiUrl, {
