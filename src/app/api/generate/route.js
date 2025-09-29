@@ -1,5 +1,32 @@
 import { NextResponse } from "next/server";
 
+
+function bustCache(url) {
+  const u = new URL(url);
+  u.searchParams.set("_cb", Date.now().toString());
+  return u.toString();
+}
+
+// If your payload (param) contains image URLs, rewrite them:
+function rewriteImageUrls(obj) {
+  if (obj == null) return obj;
+  if (typeof obj === "string") {
+    // crude test: looks like an http(s) image
+    if (/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(obj)) {
+      return bustCache(obj);
+    }
+    return obj;
+  }
+  if (Array.isArray(obj)) return obj.map(rewriteImageUrls);
+  if (typeof obj === "object") {
+    const out = Array.isArray(obj) ? [] : {};
+    for (const k of Object.keys(obj)) out[k] = rewriteImageUrls(obj[k]);
+    return out;
+  }
+  return obj;
+}
+
+
 const headers = {
   "Content-Type": "application/json",
   "X-API-KEY": "82c4MjAwMTY6MjAxMzE6QTVKMjFrak1Ga1ZCYTVRNQ=",
@@ -10,10 +37,12 @@ const apiUrl = "https://api.craftmypdf.com/v1/create";
 export async function POST(request) {
   try {
     const param = await request.json(); 
+    const paramNoCache = rewriteImageUrls(param);
+
 
     const requestBody = {
       template_id: "61077b239be18a0c",
-      data: param, //JSON.stringify(param), 
+      data: paramNoCache, //JSON.stringify(param), 
       load_data_from: null,
       export_type: "json",
       expiration: 60,
