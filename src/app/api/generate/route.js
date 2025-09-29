@@ -24,6 +24,7 @@ export async function POST(request) {
       password_protected: true,
       password: "string",
       resize_images: 0,
+      image_resample_res: 300,
     };
 
     const response = await fetch(apiUrl, {
