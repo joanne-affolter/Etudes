@@ -63,16 +63,16 @@ const generatePDF = async () => {
     console.log("Fetched project data for PDF generation:", data);
 
     // 1bis) Download fetched JSON before generating PDF
-    const downloadJson = (obj, filename) => {
-      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    };
-    downloadJson(data, `project_data_${id}.json`);
+    //const downloadJson = (obj, filename) => {
+    //  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    //  const url = URL.createObjectURL(blob);
+    //  const a = document.createElement('a');
+    //  a.href = url;
+    //  a.download = filename;
+    //  a.click();
+    //  URL.revokeObjectURL(url);
+    //};
+    //downloadJson(data, `project_data_${id}.json`);
 
     // util: download any Blob with a filename
     const downloadBlob = (blob, filename) => {
