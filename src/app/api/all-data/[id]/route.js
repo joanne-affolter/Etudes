@@ -233,6 +233,13 @@ export const GET = async (req, { params }) => {
 
     // Process prefinancement
     const prefinancement_obj = prefinancement.map(processPrefinancement)[0] || [];
+    
+
+    // Create a list of objects based on number of parkings 
+    const nombre_parking = infosGenerales.nombre_parking;
+    const parkings = Array.from({ length: nombre_parking }, (_, i) => ({
+      idx: i + 1,
+    }));
 
     //console.log("images and descriptions", imagesAndDescriptions);
     console.log("repartitionPhases", repartitionPhases);
@@ -247,6 +254,7 @@ export const GET = async (req, { params }) => {
       ...repartitionPhases,
       ...flattenedMaterielInfo, 
       lexique, 
+      parkings
     };
     
     return new Response(JSON.stringify(result, null, 2), {
