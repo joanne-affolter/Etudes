@@ -188,10 +188,13 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
             <Input
               style={{ width: '100%' }}
               value={p.phases[idx]?.from ?? ''}
-              onChange={v =>
+              onChange={e =>
                 setParkingsData(curr => {
                   const next = structuredClone(curr);
-                  next[pIndex].phases[idx] = { ...(next[pIndex].phases[idx] || {}), from: v };
+                  next[pIndex].phases[idx] = {
+                    ...(next[pIndex].phases[idx] || {}),
+                    from: e.target.value,          // <-- the string "112-115"
+                  };
                   return next;
                 })
               }
@@ -202,11 +205,14 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
             <div style={{ fontSize: 12, marginBottom: 4 }}>N° Place - Fin</div>
             <Input
               style={{ width: '100%' }}
-              value={p.phases[idx]?.to ?? ""}
-              onChange={v =>
+              value={p.phases[idx]?.to ?? ''}
+              onChange={e =>
                 setParkingsData(curr => {
                   const next = structuredClone(curr);
-                  next[pIndex].phases[idx] = { ...(next[pIndex].phases[idx] || {}), to: v };
+                  next[pIndex].phases[idx] = {
+                    ...(next[pIndex].phases[idx] || {}),
+                    to: e.target.value,            // <-- the string "118-121"
+                  };
                   return next;
                 })
               }
@@ -294,7 +300,7 @@ export default function InfosTechniquesPage() {
         filled[idx].description = mapped.description;
 
         const wanted = Number(pd[idx]?.travees) || 0;
-        const normalizedPhases = Array.from({ length: wanted }, (_, i) => mapped.phases[i] ?? { from: undefined, to: undefined });
+        const normalizedPhases = Array.from({ length: wanted }, (_, i) => mapped.phases[i] ?? { from: "", to: "" });
         filled[idx].phases = normalizedPhases;
       }
 
