@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Collapse, Divider, Input, InputNumber, Table, Button, Flex, Spin  } from 'antd';
+import { Collapse, Divider, Input, InputNumber, Table, Button, Flex, Spin } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { TypingAnimation } from '../../../../components/ui/typing-animation';
 import { SaveButton } from '../../../../components/general/saveButton';
@@ -134,11 +134,11 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
         placeholder="Ex. Départ poste extérieur au bâtiment…"
       />
 
-      <div className="my-15"/>
+      <div className="my-15" />
       <Divider orientation="left" plain>
         <span className="text-md font-bold">Arrivée Réseau & Panoplie</span>
       </Divider>
-      <div className="my-5"/>
+      <div className="my-5" />
 
       <EditableTable
         rows={p.materiel.reseau}
@@ -147,11 +147,11 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
         onRemove={rIdx => removeRow(parkingsData, setParkingsData, pIndex, 'reseau', rIdx)}
       />
 
-      <div className="my-15"/>
+      <div className="my-15" />
       <Divider orientation="left" plain>
         <span className="text-md font-bold">Parking</span>
       </Divider>
-      <div className="my-5"/>
+      <div className="my-5" />
 
       <EditableTable
         rows={p.materiel.parking}
@@ -161,11 +161,11 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
       />
 
 
-      <div className="my-15"/>
+      <div className="my-15" />
       <Divider orientation="left" plain>
         <span className="text-md font-bold">Colonne de Terre</span>
       </Divider>
-      <div className="my-5"/>
+      <div className="my-5" />
 
       <EditableTable
         rows={p.materiel.terre}
@@ -174,21 +174,20 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
         onRemove={rIdx => removeRow(parkingsData, setParkingsData, pIndex, 'terre', rIdx)}
       />
 
-      <div className="my-15"/>
+      <div className="my-15" />
       <Divider orientation="left" plain>
         <span className="text-md font-bold">Répartition des phases</span>
       </Divider>
-      <div className="my-5"/>
+      <div className="my-5" />
 
       {Array.from({ length: nbTravees }).map((_, idx) => (
         <Flex key={idx} wrap style={{ columnGap: 12, rowGap: 8, marginBottom: 8 }}>
           <span className="text-md font-bold" style={{ width: 90 }}>Travée {idx + 1}</span>
           <div style={{ width: 220 }}>
             <div style={{ fontSize: 12, marginBottom: 4 }}>N° Place - Début</div>
-            <InputNumber
-              min={0}
+            <Input
               style={{ width: '100%' }}
-              value={p.phases[idx]?.from}
+              value={p.phases[idx]?.from ?? ''}
               onChange={v =>
                 setParkingsData(curr => {
                   const next = structuredClone(curr);
@@ -196,14 +195,14 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
                   return next;
                 })
               }
+              placeholder="ex. 112-115"
             />
           </div>
           <div style={{ width: 220 }}>
             <div style={{ fontSize: 12, marginBottom: 4 }}>N° Place - Fin</div>
-            <InputNumber
-              min={0}
+            <Input
               style={{ width: '100%' }}
-              value={p.phases[idx]?.to}
+              value={p.phases[idx]?.to ?? ""}
               onChange={v =>
                 setParkingsData(curr => {
                   const next = structuredClone(curr);
@@ -211,6 +210,7 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
                   return next;
                 })
               }
+              placeholder="ex. 118-121"
             />
           </div>
         </Flex>
@@ -222,32 +222,32 @@ function ParkingPanel({ pIndex, nbTravees, parkingsData, setParkingsData }) {
 /* -------------------- Page -------------------- */
 // DB -> UI mapping for items in materielInfoTechnique.items
 const mapItemsDbToUi = (items = []) =>
-    (Array.isArray(items) ? items : []).map(row => ({
-      label: row?.reseau ?? "",
-      metres: row?.metres ?? undefined,
-      section: row?.section ?? undefined,
-}));
-  
-  // Apply a single data_info row to a per-parking accumulator
+  (Array.isArray(items) ? items : []).map(row => ({
+    label: row?.reseau ?? "",
+    metres: row?.metres ?? undefined,
+    section: row?.section ?? undefined,
+  }));
+
+// Apply a single data_info row to a per-parking accumulator
 const applySection = (acc, row) => {
-    const { parking_idx, section, items } = row;
-    if (!acc[parking_idx]) return acc; // safety
-    const uiItems = mapItemsDbToUi(items);
-    if (section === "arrivee_reseau") acc[parking_idx].materiel.reseau = uiItems;
-    else if (section === "parking") acc[parking_idx].materiel.parking = uiItems;
-    else if (section === "colonne_terre") acc[parking_idx].materiel.terre = uiItems;
-    return acc;
+  const { parking_idx, section, items } = row;
+  if (!acc[parking_idx]) return acc; // safety
+  const uiItems = mapItemsDbToUi(items);
+  if (section === "arrivee_reseau") acc[parking_idx].materiel.reseau = uiItems;
+  else if (section === "parking") acc[parking_idx].materiel.parking = uiItems;
+  else if (section === "colonne_terre") acc[parking_idx].materiel.terre = uiItems;
+  return acc;
 };
-  
-  // DB -> UI mapping for meta row
+
+// DB -> UI mapping for meta row
 const mapMetaDbToUi = (meta) => ({
-    description: meta?.description ?? "",
-    phases: Array.isArray(meta?.travees)
-      ? meta.travees.map(t => ({
-          from: t?.from ?? undefined,
-          to:   t?.to   ?? undefined,
-        }))
-      : [],
+  description: meta?.description ?? "",
+  phases: Array.isArray(meta?.travees)
+    ? meta.travees.map(t => ({
+      from: t?.from ?? "",
+      to: t?.to ?? "",
+    }))
+    : [],
 });
 
 
@@ -263,41 +263,41 @@ export default function InfosTechniquesPage() {
       // 1) Base structure from infos-generales
       const gen = await generalFetch('/api/infos-generales', id);
       const pd = Array.isArray(gen?.parking_details) ? gen.parking_details : [];
-  
+
       // empty per-parking UI shape
       const empty = pd.map(p => ({
         description: "",
         materiel: { reseau: [], parking: [], terre: [] },
-        phases: Array.from({ length: Number(p?.travees) || 0 }, () => ({ from: undefined, to: undefined })),
+        phases: Array.from({ length: Number(p?.travees) || 0 }, () => ({ from: '', to: '' })),
       }));
-  
+
       setInfosParkings(pd);
       setParkingsData(empty); // set something immediately for first render
-  
+
       // 2) Load technical data
       const tech = await generalFetch('/api/infos-techniques', id);
       const meta = Array.isArray(tech?.metas) ? tech.metas : [];
       const data_info = Array.isArray(tech?.data) ? tech.data : [];
-  
+
       console.log("Fetched infos-techniques meta", meta);
       console.log("Fetched infos-techniques data_info", data_info);
-  
+
       // 3) Overlay material sections (arrivee_reseau / parking / colonne_terre)
       const filled = data_info.reduce(applySection, structuredClone(empty));
-  
+
       // 4) Overlay meta: description + phases (ensure length matches travees)
       for (const m of meta) {
         const idx = m?.parking_idx;
         if (idx == null || !filled[idx]) continue;
-  
+
         const mapped = mapMetaDbToUi(m);
         filled[idx].description = mapped.description;
-  
+
         const wanted = Number(pd[idx]?.travees) || 0;
         const normalizedPhases = Array.from({ length: wanted }, (_, i) => mapped.phases[i] ?? { from: undefined, to: undefined });
         filled[idx].phases = normalizedPhases;
       }
-  
+
       setParkingsData(filled);
       setLoading(false);
     })();
@@ -317,74 +317,74 @@ export default function InfosTechniquesPage() {
     ),
   }));
 
-  
-  const onSave = async () => {    
+
+  const onSave = async () => {
     const castRows = (rows) => rows.map((row, idx) => ({
-        id: idx,
-        reseau: row.label,
-        metres: row.metres,
-        section: row.section,
+      id: idx,
+      reseau: row.label,
+      metres: row.metres,
+      section: row.section,
     }));
 
 
     // Post Data for InfosTechniques (main)
     const mapping_sections = {
-        'reseau': 'arrivee_reseau',
-        'parking': 'parking',
-        'terre': 'colonne_terre',
+      'reseau': 'arrivee_reseau',
+      'parking': 'parking',
+      'terre': 'colonne_terre',
     }
-    for (let p=0; p < parkingsData.length; p++) {
-        const data = parkingsData[p].materiel;
-        for (let section of ['reseau', 'parking', 'terre']) {
-            const new_data = {
-                id: parseInt(id, 10),
-                parking_idx: p,
-                section: mapping_sections[section],
-                items: castRows(data[section]), 
-            }
-            await generalUpdate('/api/infos-techniques', new_data);
+    for (let p = 0; p < parkingsData.length; p++) {
+      const data = parkingsData[p].materiel;
+      for (let section of ['reseau', 'parking', 'terre']) {
+        const new_data = {
+          id: parseInt(id, 10),
+          parking_idx: p,
+          section: mapping_sections[section],
+          items: castRows(data[section]),
         }
+        await generalUpdate('/api/infos-techniques', new_data);
+      }
     }
 
     // Post Data for InfosTechniquesMeta 
-    for (let p=0; p < parkingsData.length; p++) {
-        const data = parkingsData[p];
-        const new_data = {
-            id: parseInt(id, 10),
-            parking_idx: p,
-            description: data.description,
-            travees: data.phases,
-        }
-        await generalUpdate('/api/info-techniques-meta', new_data);
+    for (let p = 0; p < parkingsData.length; p++) {
+      const data = parkingsData[p];
+      const new_data = {
+        id: parseInt(id, 10),
+        parking_idx: p,
+        description: data.description,
+        travees: data.phases,
+      }
+      await generalUpdate('/api/info-techniques-meta', new_data);
     };
 
-        
+
     return true;
   };
 
   return (
     <div className="p-12">
-    {loading ? (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
-      </div>
-    ) : (
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      ) : (
         <>
-      <div className="flex justify-center mb-8">
-        <TypingAnimation className="text-3xl font-bold text-center">Informations Techniques</TypingAnimation>
-      </div>
+          <div className="flex justify-center mb-8">
+            <TypingAnimation className="text-3xl font-bold text-center">Informations Techniques</TypingAnimation>
+          </div>
 
-      <Collapse
-        items={items}
-        defaultActiveKey={items.length ? [items[0].key] : []}
-        destroyOnHidden={false}
-      />
+          <Collapse
+            items={items}
+            defaultActiveKey={items.length ? [items[0].key] : []}
+            destroyOnHidden={false}
+          />
 
-      <div className="flex justify-start mt-6">
-        <SaveButton onSave={onSave} />
-      </div>
-      </>
-    )}
+          <div className="flex justify-start mt-6">
+            <SaveButton onSave={onSave} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
