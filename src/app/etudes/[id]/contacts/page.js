@@ -108,6 +108,8 @@ function FormContacts({ id, initialValues }) {
                         <Select.Option value="Tiphaine WATELLE">Tiphaine WATELLE</Select.Option>
                         <Select.Option value="Amira ABID">Amira ABID</Select.Option>
                         <Select.Option value="Jennifer DOS SANTOS FERREIRA">Jennifer DOS SANTOS FERREIRA</Select.Option>
+                        <Select.Option value="Valentina MILOJEVIC">Valentina MILOJEVIC</Select.Option>
+                        <Select.Option value="Jallel AIT TIZI">Jallel AIT TIZI</Select.Option>
                     </Select>
                 </Form.Item>
 
