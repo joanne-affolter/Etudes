@@ -17,21 +17,24 @@ const getRepartitionPhases = (infosTechniquesMeta) => {
       return pairs;
     }
 
-    // Case 2: both strings — support "a-b" or "a-b, c-d"
+    // Case 2: both strings — ex: "112-120" and "115-130"
     if (typeof from === "string" && typeof to === "string") {
-      const fparts = from.split("-").map(s => s.trim()).filter(Boolean);
-      const tparts = to.split("-").map(s => s.trim()).filter(Boolean);
-      const n = Math.min(fparts.length, tparts.length);
+      const parseBounds = (str) =>
+        str
+          .split("-")
+          .map(s => parseInt(s.trim(), 10))
+          .filter(n => Number.isFinite(n));
+
+      const fBounds = parseBounds(from); // ex: "112-120" -> [112, 120]
+      const tBounds = parseBounds(to);   // ex: "115-130" -> [115, 130]
+
+      const n = Math.min(fBounds.length, tBounds.length);
 
       for (let i = 0; i < n; i++) {
-        const [fs, fe] = fparts[i].split("-").map(v => parseInt(v, 10));
-        const [ts, te] = tparts[i].split("-").map(v => parseInt(v, 10));
+        const start = fBounds[i];
+        const end = tBounds[i];
 
-        // Prefer explicit starts/ends if valid, otherwise fall back
-        const start = Number.isFinite(fs) ? fs : ts;
-        const end = Number.isFinite(te) ? te : fe;
-
-        if (Number.isFinite(start) && Number.isFinite(end)) {
+        if (Number.isFinite(start) && Number.isFinite(end) && start <= end) {
           pairs.push([start, end]);
         }
       }
@@ -58,13 +61,17 @@ const getRepartitionPhases = (infosTechniquesMeta) => {
       const pairs = toPairs(travee.from, travee.to);
 
       if (!pairs.length) {
-        console.warn(`⚠️ Tranche invalide dans travée ${traveeIndex + 1}, parking ${parkingIdx}:`,
-          { from: travee.from, to: travee.to });
+        console.warn(
+          `⚠️ Tranche invalide dans travée ${traveeIndex + 1}, parking ${parkingIdx}:`,
+          { from: travee.from, to: travee.to }
+        );
       }
 
       for (const [start, end] of pairs) {
         if (!Number.isFinite(start) || !Number.isFinite(end) || start > end) {
-          console.warn(`⚠️ Intervalle invalide: [${start}, ${end}] (travée ${traveeIndex + 1}, parking ${parkingIdx})`);
+          console.warn(
+            `⚠️ Intervalle invalide: [${start}, ${end}] (travée ${traveeIndex + 1}, parking ${parkingIdx})`
+          );
           continue;
         }
         for (let i = start; i <= end; i++) {
@@ -87,6 +94,7 @@ const getRepartitionPhases = (infosTechniquesMeta) => {
 
   return repartitionPhases;
 };
+
 
 const getDescriptionTechnique = (infosTechniquesMeta) => {
   const descriptionTechnique = { description_technique: [] };
