@@ -172,7 +172,7 @@ export async function POST(req) {
 
   try {
     // 🔁 Call with retry
-    const res = await fetchWithRetry(url, options, 2);
+    const res = await fetchWithRetry(url, options, 5);
 
     // Convert to PDF buffer
     const pdfBuffer = Buffer.from(await res.arrayBuffer());
