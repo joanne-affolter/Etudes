@@ -82,7 +82,8 @@ export async function POST(request) {
 
 */}
 
-
+{/**
+  OKKKKK
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -113,4 +114,81 @@ export async function POST(req) {
       "Content-Disposition": "inline; filename=etude_enedis.pdf"
     }
   });
+}
+*/}
+
+import { NextRequest, NextResponse } from "next/server";
+
+async function fetchWithRetry(url, options, retries = 5) {
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        lastError = { status: res.status, error: errorText };
+
+        // If this was the last attempt → break
+        if (attempt === retries) break;
+
+        console.warn(`[Carbone] Attempt ${attempt + 1} failed → retrying...`);
+        continue;
+      }
+
+      return res; // success!
+    } catch (err) {
+      lastError = { status: 500, error: err.message };
+
+      if (attempt === retries) break;
+
+      console.warn(`[Carbone] Network error on attempt ${attempt + 1} → retrying...`);
+    }
+  }
+
+  // After all attempts: throw the final captured error
+  throw lastError;
+}
+
+export async function POST(req) {
+  const data = await req.json();
+
+  const url =
+    "https://render.carbone.io/render/6cf6d1a54de34f7562fe1c26777034008e663d481c17d95cb22a89fb84c4c7d9?download=true";
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Authorization":
+        `Bearer eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIxMjYwODk3NzM3MzMyMTUyMDU3IiwiYXVkIjoiY2FyYm9uZSIsImV4cCI6MjQyMjA4ODAyOCwiZGF0YSI6eyJ0eXBlIjoicHJvZCJ9fQ.AB6Mglcw4rPTcdD5TkrZkfgh3thv0JcXSS8gXp8VEsWfbW9V7br-NAknddvCNIS9nOu1dFiH30DOVN5R5zSMaYtJAH0t5DVaoN94R_ZepU7Lw75JLx8jSoy_HzIrVFkNQIcrg4qrUZhIBFmctaKaenr7Se6C3KSLfxk3LW0TiOLXYL50`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      data,
+      convertTo: "pdf"
+    })
+  };
+
+  try {
+    // 🔁 Call with retry
+    const res = await fetchWithRetry(url, options, 2);
+
+    // Convert to PDF buffer
+    const pdfBuffer = Buffer.from(await res.arrayBuffer());
+
+    return new NextResponse(pdfBuffer, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "inline; filename=etude_enedis.pdf"
+      }
+    });
+
+  } catch (err) {
+    // 🎯 Return full error to frontend
+    return NextResponse.json(
+      { message: "Carbone rendering failed", details: err },
+      { status: err.status || 500 }
+    );
+  }
 }
