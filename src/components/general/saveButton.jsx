@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Popconfirm, Button, notification } from 'antd';
 
-export function SaveButton({ onSave }) {
+export function SaveButton({ onSave, label = 'Sauvegarder' }) {
     const [api, contextHolder] = notification.useNotification();
     const [saving, setSaving] = useState(false);
   
@@ -13,13 +13,15 @@ export function SaveButton({ onSave }) {
         const ok = await onSave();          // return true on success, false/throw on failure
         if (ok) {
           api.success({
-            message: 'Sauvegarde réussie',
-            description: 'Les informations ont été enregistrées.',
+            message: label === 'Compresser' ? 'Compression réussie' : 'Sauvegarde réussie',
+            description: label === 'Compresser' 
+              ? 'Les images ont été compressées avec succès.' 
+              : 'Les informations ont été enregistrées.',
             placement: 'topRight',
           });
         } else {
           api.error({
-            message: 'Échec de la sauvegarde',
+            message: label === 'Compresser' ? 'Échec de la compression' : 'Échec de la sauvegarde',
             description: 'Veuillez réessayer ou vérifier les champs requis.',
             placement: 'topRight',
           });
@@ -27,7 +29,7 @@ export function SaveButton({ onSave }) {
       } catch (e) {
         api.error({
           message: 'Erreur',
-          description: e?.message || 'Une erreur est survenue pendant la sauvegarde.',
+          description: e?.message || `Une erreur est survenue pendant ${label === 'Compresser' ? 'la compression' : 'la sauvegarde'}.`,
           placement: 'topRight',
         });
       } finally {
@@ -39,14 +41,15 @@ export function SaveButton({ onSave }) {
       <>
         {contextHolder}
         <Popconfirm
-          title="Sauvegarder les informations ?"
+          title={label === 'Compresser' ? 'Compresser toutes les images ?' : 'Sauvegarder les informations ?'}
+          description={label === 'Compresser' ? 'Cela va réduire la taille de toutes les images affichées.' : undefined}
           onConfirm={handleConfirm}
           okText="Oui"
           cancelText="Annuler"
           okButtonProps={{ loading: saving }}
         >
           <Button type="primary" loading={saving}>
-            Sauvegarder
+            {label}
           </Button>
         </Popconfirm>
       </>

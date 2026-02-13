@@ -165,6 +165,13 @@ const InnerImageHandler = forwardRef(function ImageHandler({ initialFiles = [] }
 
   useImperativeHandle(ref, () => ({
     getOrderedFiles: () => [...fileList],
+    updateFileUrl: (oldUrl, newUrl, newPathname) => {
+      setFileList(prev => prev.map(f => 
+        f.url === oldUrl 
+          ? { ...f, url: newUrl, pathname: newPathname, uid: newUrl }
+          : f
+      ));
+    },
   }));
 
   const sensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } });
@@ -362,6 +369,9 @@ const ImagePanel = React.forwardRef(function ImagePanel({
         fileUrls,
       };
     },
+    updateFileUrl: (oldUrl, newUrl, newPathname) => {
+      handlerRef.current?.updateFileUrl?.(oldUrl, newUrl, newPathname);
+    },
   }));
 
   return (
@@ -511,6 +521,95 @@ export default function ImagesAvantPage() {
     })),
   ];
 
+  // Fonction pour télécharger et recompresser une image blob
+  const recompressBlobImage = async (url, pathname) => {
+    try {
+      // Télécharger l'image depuis le blob
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch image');
+      
+      const blob = await response.blob();
+      const file = new File([blob], pathname.split('/').pop() || 'image.jpg', {
+        type: blob.type || 'image/jpeg',
+      });
+
+      console.log(`[Recompression] Début pour ${pathname}`);
+
+      // Compresser l'image
+      const compressedFile = await compressImage(file);
+      const safeName = await uniqueFilenameFromFile(compressedFile);
+
+      // Upload la version compressée
+      const newBlob = await upload(safeName, compressedFile, {
+        access: 'public',
+        handleUploadUrl: '/api/blob-upload',
+      });
+
+      // Supprimer l'ancienne version
+      await fetch('/api/blob-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pathname, url }),
+      });
+
+      console.log(`[Recompression] ✓ ${pathname} → ${newBlob.pathname}`);
+      return newBlob.url;
+    } catch (err) {
+      console.error(`[Recompression] Erreur pour ${pathname}:`, err);
+      return url; // Garder l'URL originale en cas d'erreur
+    }
+  };
+
+  const onCompress = async () => {
+    try {
+      const refs = panelRefs.current;
+      const panels = Object.keys(refs).map(k => refs[k]).filter(Boolean);
+      
+      let totalImages = 0;
+      let compressedImages = 0;
+
+      console.log('[Compress] Début de la recompression...');
+
+      for (let panel of panels) {
+        const payload = panel.getPayload?.();
+        if (!payload?.fileUrls) continue;
+
+        const urls = payload.fileUrls.split(',').map(u => u.trim()).filter(Boolean);
+        
+        for (let url of urls) {
+          if (url.includes('.public.blob.vercel-storage.com')) {
+            totalImages++;
+            const pathname = new URL(url).pathname.replace(/^\/+/, '');
+            const newUrl = await recompressBlobImage(url, pathname);
+            
+            if (newUrl !== url) {
+              compressedImages++;
+              const newPathname = new URL(newUrl).pathname.replace(/^\/+/, '');
+              panel.updateFileUrl?.(url, newUrl, newPathname);
+            }
+          }
+        }
+      }
+
+      console.log(`[Compress] Terminé: ${compressedImages}/${totalImages} images compressées`);
+      
+      // Sauvegarder automatiquement en DB après la compression
+      if (compressedImages > 0) {
+        console.log('[Compress] Sauvegarde en DB des nouvelles URLs...');
+        const saveResult = await onSave();
+        if (!saveResult) {
+          throw new Error('Échec de la sauvegarde en DB');
+        }
+        console.log('[Compress] ✓ Sauvegarde en DB réussie');
+      }
+      
+      return true;
+    } catch (e) {
+      console.error('[Compress] Erreur:', e);
+      return false;
+    }
+  };
+
   const onSave = async () => {
     try {
       const refs = panelRefs.current;
@@ -558,7 +657,8 @@ export default function ImagesAvantPage() {
             destroyOnHidden={false}
           />
 
-          <div className="flex align-center justify-start mt-10">
+          <div className="flex align-center justify-start mt-10 gap-4">
+            <SaveButton onSave={onCompress} label="Compresser" />
             <SaveButton onSave={onSave} />
           </div>
         </>
