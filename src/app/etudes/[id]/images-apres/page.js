@@ -212,6 +212,8 @@ const InnerImageHandler = forwardRef(function ImageHandler({ initialFiles = [] }
       // Prefer saved pathname; derive from url if needed
       const pathname = file.pathname || new URL(file.url).pathname.replace(/^\/+/, '');
 
+      console.log('[blob-delete] Suppression demandée:', { pathname, url: file.url });
+
       const res = await fetch('/api/blob-delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -221,10 +223,11 @@ const InnerImageHandler = forwardRef(function ImageHandler({ initialFiles = [] }
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'Delete failed');
 
+      console.log('[blob-delete] ✓ Blob supprimé avec succès:', pathname);
       queueMicrotask(() => messageApi.success('Image supprimée'));
       return true;
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error('[blob-delete] ✗ Erreur de suppression:', { pathname: file.pathname, error: err.message });
       queueMicrotask(() => messageApi.error('Suppression impossible'));
       return false;
     }

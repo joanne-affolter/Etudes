@@ -27,10 +27,12 @@ export async function POST(request) {
     // Try delete by pathname first; if it throws AND we had a url, try the url form.
     try {
       await del(target); // pathname form
+      console.log('[blob-delete] ✓ Blob supprimé avec succès (pathname):', target);
     } catch (err1) {
       console.warn('[blob-delete] pathname delete failed, will try url:', err1?.message);
       if (url) {
         await del(url); // full URL form
+        console.log('[blob-delete] ✓ Blob supprimé avec succès (url):', url);
       } else {
         throw err1;
       }
