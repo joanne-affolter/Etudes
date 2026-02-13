@@ -219,7 +219,9 @@ export const GET = async (req, { params }) => {
     const project = await prisma.project.findUnique({ where: { id } });
     const infosGenerales = await prisma.infosGenerales.findUnique({ where: { id } });
     const contacts = await prisma.contact.findMany({ where: { id: id } });
-    const prefinancement = await prisma.prefinancement.findMany({ where: { id } });
+    //const prefinancement = await prisma.prefinancement.findMany({ where: { id } });
+    //const contacts = await prisma.contact.findUnique({ where: { id } }) || null; // Fixed: was findMany
+    const prefinancement = await prisma.prefinancement.findUnique({ where: { id } }) || null; // Fixed: was findMany
     const materials = await prisma.material.findMany({ where: { id } });
     const imagesRaw = await prisma.imageUpload.findMany({ where: { projectId: id } });
     const materielInfoTechnique = await prisma.materielInfoTechnique.findMany({ where: { id } });
@@ -240,7 +242,10 @@ export const GET = async (req, { params }) => {
     const imagesAndDescriptions = getImagesandDescriptions(imagesRaw);
 
     // Process prefinancement
-    const prefinancement_obj = prefinancement.map(processPrefinancement)[0] || [];
+    //const prefinancement_obj = prefinancement.map(processPrefinancement)[0] || [];
+
+    // Process prefinancement - now handles single object instead of array
+    const prefinancement_obj = prefinancement ? processPrefinancement(prefinancement) : [];
 
 
     // Create a list of objects based on number of parkings 

@@ -21,6 +21,14 @@ export const GET = async (request) => {
 export const POST = async (req) => {
   const data = await req.json();
 
+  // Validate required fields
+  if (!data.id || data.parking_idx === undefined || !data.section || typeof data.id !== 'number') {
+    return new Response(JSON.stringify({ error: "ID, parking_idx, and section are required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const updated = await prisma.materielInfoTechnique.upsert({
       where: { id_parking_idx_section: {
@@ -35,9 +43,10 @@ export const POST = async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("Error in POST api/infos-techniques :", err);
-    return new Response(JSON.stringify({ error: "Failed to create project" }), {
+    console.error("Error in POST api/infos-techniques:", err);
+    return new Response(JSON.stringify({ error: "Failed to save infos téchniques", details: err.message }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

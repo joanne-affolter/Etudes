@@ -17,6 +17,14 @@ export const GET = async (request) => {
 export const POST = async (req) => {
   const data = await req.json();
 
+  // Validate required fields
+  if (!data.id || data.parking_idx === undefined || typeof data.id !== 'number') {
+    return new Response(JSON.stringify({ error: "ID and parking_idx are required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const updated = await prisma.infosTechniquesMeta.upsert({
       where: {
@@ -25,7 +33,7 @@ export const POST = async (req) => {
           parking_idx: data.parking_idx,
         },
       },
-      update: { description: data.description, travees: data.travees },
+      update: data, // Update all fields
       create: {
         id: data.id,
         parking_idx: data.parking_idx,
@@ -37,9 +45,10 @@ export const POST = async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("Error in POST api/infos-techniques-meta/ :", err);
-    return new Response(JSON.stringify({ error: "Failed to create or update" }), {
+    console.error("Error in POST api/infos-techniques-meta:", err);
+    return new Response(JSON.stringify({ error: "Failed to save infos-techniques-meta", details: err.message }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

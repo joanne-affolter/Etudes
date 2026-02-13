@@ -141,14 +141,21 @@ export default function MaterielPage() {
     })();
   }, [id, DEFAULTS]);
 
-  // save helpers
+  // save helpers - improved error handling
   const saveKeys = async (keys) => {
-    for (const key of keys) {
-        await generalUpdate("/api/materiel", {
-            id: parseInt(id, 10),
-            section: key,
-            items: sections[key] || [],
+    try {
+      for (const key of keys) {
+        const result = await generalUpdate("/api/materiel", {
+          id: parseInt(id, 10),
+          section: key,
+          items: sections[key] || [],
         });
+        if (!result) throw new Error(`Failed to save section: ${key}`);
+      }
+      return true; // Return true on success
+    } catch (error) {
+      console.error("Error saving materials:", error);
+      throw error; // Re-throw for SaveButton to catch
     }
   };
 
@@ -213,10 +220,17 @@ export default function MaterielPage() {
         <>
           <Collapse items={items} defaultActiveKey={items.length ? [items[0].key] : []} />
           <div className="flex justify-start mt-6">
-            <SaveButton onSave={() => Promise.all([
-              showInterieur ? saveKeys(tabsInterieur.map(([k]) => k)) : Promise.resolve(),
-              showExterieur ? saveKeys(tabsExterieur.map(([k]) => k)) : Promise.resolve(),
-            ])} />
+            <SaveButton onSave={async () => {
+              try {
+                await Promise.all([
+                  showInterieur ? saveKeys(tabsInterieur.map(([k]) => k)) : Promise.resolve(),
+                  showExterieur ? saveKeys(tabsExterieur.map(([k]) => k)) : Promise.resolve(),
+                ]);
+                return true;
+              } catch (error) {
+                throw error;
+              }
+            }} />
           </div>
         </>
       )}

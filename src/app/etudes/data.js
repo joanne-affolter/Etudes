@@ -49,7 +49,13 @@ export async function generalUpdate(endpoint, data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data), 
     });
-    if (!res.ok) throw new Error("Failed to update information:" + endpoint); 
+    
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMsg = errorData?.error || errorData?.message || "Failed to update information";
+        throw new Error(`${errorMsg} (${res.status})`);
+    }
+    
     const responseData = await res.json(); 
     return responseData; 
 }

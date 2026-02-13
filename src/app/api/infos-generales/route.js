@@ -18,6 +18,14 @@ export const GET = async (request) => {
 export const POST = async (req) => {
   const data = await req.json();
 
+  // Validate required fields
+  if (!data.id || typeof data.id !== 'number') {
+    return new Response(JSON.stringify({ error: "ID is required and must be a number" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const updated = await prisma.infosGenerales.upsert({
       where: { id: data.id },
@@ -28,9 +36,10 @@ export const POST = async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("Error in POST api/etudes/ :", err);
-    return new Response(JSON.stringify({ error: "Failed to create project" }), {
+    console.error("Error in POST api/infos-generales:", err);
+    return new Response(JSON.stringify({ error: "Failed to save infos générales", details: err.message }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

@@ -16,10 +16,18 @@ export const GET = async (request) => {
 export const POST = async (req) => {
   const data = await req.json();
 
+  // Validate required fields
+  if (!data.id || !data.section || typeof data.id !== 'number') {
+    return new Response(JSON.stringify({ error: "ID and section are required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const updated = await prisma.material.upsert({
       where: { id_section: { id: data.id, section: data.section } },
-      update: { items: data.items },
+      update: data, // Update all fields
       create: {
         id: data.id,
         section: data.section,
@@ -30,9 +38,10 @@ export const POST = async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("Error in POST api/materiel :", err);
-    return new Response(JSON.stringify({ error: "Failed to create project" }), {
+    console.error("Error in POST api/materiel:", err);
+    return new Response(JSON.stringify({ error: "Failed to save material data", details: err.message }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

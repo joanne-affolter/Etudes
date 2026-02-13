@@ -325,47 +325,52 @@ export default function InfosTechniquesPage() {
 
 
   const onSave = async () => {
-    const castRows = (rows) => rows.map((row, idx) => ({
-      id: idx,
-      reseau: row.label,
-      metres: row.metres,
-      section: row.section,
-    }));
+    try {
+      const castRows = (rows) => rows.map((row, idx) => ({
+        id: idx,
+        reseau: row.label,
+        metres: row.metres,
+        section: row.section,
+      }));
 
+      // Post Data for InfosTechniques (main)
+      const mapping_sections = {
+        'reseau': 'arrivee_reseau',
+        'parking': 'parking',
+        'terre': 'colonne_terre',
+      }
+      for (let p = 0; p < parkingsData.length; p++) {
+        const data = parkingsData[p].materiel;
+        for (let section of ['reseau', 'parking', 'terre']) {
+          const new_data = {
+            id: parseInt(id, 10),
+            parking_idx: p,
+            section: mapping_sections[section],
+            items: castRows(data[section]),
+          }
+          const result = await generalUpdate('/api/infos-techniques', new_data);
+          if (!result) throw new Error(`Failed to save infos-techniques section: ${section}`);
+        }
+      }
 
-    // Post Data for InfosTechniques (main)
-    const mapping_sections = {
-      'reseau': 'arrivee_reseau',
-      'parking': 'parking',
-      'terre': 'colonne_terre',
-    }
-    for (let p = 0; p < parkingsData.length; p++) {
-      const data = parkingsData[p].materiel;
-      for (let section of ['reseau', 'parking', 'terre']) {
+      // Post Data for InfosTechniquesMeta 
+      for (let p = 0; p < parkingsData.length; p++) {
+        const data = parkingsData[p];
         const new_data = {
           id: parseInt(id, 10),
           parking_idx: p,
-          section: mapping_sections[section],
-          items: castRows(data[section]),
+          description: data.description,
+          travees: data.phases,
         }
-        await generalUpdate('/api/infos-techniques', new_data);
+        const result = await generalUpdate('/api/info-techniques-meta', new_data);
+        if (!result) throw new Error(`Failed to save infos-techniques-meta for parking ${p}`);
       }
+
+      return true;
+    } catch (error) {
+      console.error("Error in onSave:", error);
+      throw error; // Re-throw for SaveButton to catch
     }
-
-    // Post Data for InfosTechniquesMeta 
-    for (let p = 0; p < parkingsData.length; p++) {
-      const data = parkingsData[p];
-      const new_data = {
-        id: parseInt(id, 10),
-        parking_idx: p,
-        description: data.description,
-        travees: data.phases,
-      }
-      await generalUpdate('/api/info-techniques-meta', new_data);
-    };
-
-
-    return true;
   };
 
   return (
