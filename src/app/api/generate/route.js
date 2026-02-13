@@ -157,6 +157,105 @@ export async function POST(req) {
   const url =
     "https://render.carbone.io/render/ed684518b3dc4e44e4ef17a952b3214fdef2126cb8cc66e534fd45f0bbbab8d8?download=true";
 
+  const requestBody = {
+    data,
+    convertTo: "pdf"
+  };
+
+  const bodyString = JSON.stringify(requestBody);
+  const bodySizeBytes = new TextEncoder().encode(bodyString).length;
+  const bodySizeKB = (bodySizeBytes / 1024).toFixed(2);
+  const bodySizeMB = (bodySizeBytes / (1024 * 1024)).toFixed(2);
+
+  // Fonction pour extraire toutes les URLs d'images du payload
+  function extractImageUrls(obj, urls = new Set()) {
+    if (obj == null) return urls;
+
+    if (typeof obj === "string") {
+      // Détecter les URLs d'images (blob storage + extensions courantes)
+      if (/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif|JPG|JPEG|PNG)/.test(obj) ||
+        obj.includes('.public.blob.vercel-storage.com')) {
+        urls.add(obj);
+      }
+      return urls;
+    }
+
+    if (Array.isArray(obj)) {
+      obj.forEach(item => extractImageUrls(item, urls));
+      return urls;
+    }
+
+    if (typeof obj === "object") {
+      Object.values(obj).forEach(value => extractImageUrls(value, urls));
+      return urls;
+    }
+
+    return urls;
+  }
+
+  // Fonction pour obtenir la taille d'une image via HEAD request
+  async function getImageSize(imageUrl) {
+    try {
+      const response = await fetch(imageUrl, { method: 'HEAD' });
+      const contentLength = response.headers.get('content-length');
+      return contentLength ? parseInt(contentLength, 10) : 0;
+    } catch (err) {
+      console.warn(`   ⚠️  Impossible de récupérer la taille de: ${imageUrl.substring(0, 60)}...`);
+      return 0;
+    }
+  }
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('📊 [Carbone.io] PAYLOAD SIZE ANALYSIS');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`🔸 JSON payload size: ${bodySizeBytes} bytes (${bodySizeKB} KB / ${bodySizeMB} MB)`);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  // Extraire et analyser les images
+  const imageUrls = extractImageUrls(data);
+  console.log(`\n🖼️  Found ${imageUrls.size} image URLs in payload`);
+
+  if (imageUrls.size > 0) {
+    console.log('\n📸 Fetching image sizes...\n');
+
+    let totalImageSize = 0;
+    let imageCount = 0;
+
+    for (const imageUrl of imageUrls) {
+      const size = await getImageSize(imageUrl);
+      if (size > 0) {
+        totalImageSize += size;
+        imageCount++;
+        const sizeKB = (size / 1024).toFixed(2);
+        const shortUrl = imageUrl.length > 80 ? imageUrl.substring(0, 80) + '...' : imageUrl;
+        console.log(`   ✓ ${sizeKB} KB - ${shortUrl}`);
+      }
+    }
+
+    const totalImageSizeKB = (totalImageSize / 1024).toFixed(2);
+    const totalImageSizeMB = (totalImageSize / (1024 * 1024)).toFixed(2);
+
+    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📊 IMAGES SUMMARY');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`   • Total images: ${imageCount} (${imageUrls.size - imageCount} failed)`);
+    console.log(`   • Total images size: ${totalImageSize} bytes`);
+    console.log(`   • Total images size: ${totalImageSizeKB} KB`);
+    console.log(`   • Total images size: ${totalImageSizeMB} MB`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    const grandTotalBytes = bodySizeBytes + totalImageSize;
+    const grandTotalKB = (grandTotalBytes / 1024).toFixed(2);
+    const grandTotalMB = (grandTotalBytes / (1024 * 1024)).toFixed(2);
+
+    console.log('\n💰 ESTIMATED TOTAL COST');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`   🔸 JSON: ${bodySizeKB} KB`);
+    console.log(`   🔸 Images: ${totalImageSizeKB} KB`);
+    console.log(`   🔸 TOTAL: ${grandTotalBytes} bytes (${grandTotalKB} KB / ${grandTotalMB} MB)`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  }
+
   const options = {
     method: "POST",
     headers: {
@@ -164,14 +263,12 @@ export async function POST(req) {
         `Bearer eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIxMjg1NDk4NzI4OTUzOTcxNDA5IiwiYXVkIjoiY2FyYm9uZSIsImV4cCI6MjQyNjgzMDAxMCwiZGF0YSI6eyJ0eXBlIjoicHJvZCJ9fQ.Aa2mTE1qhAzC37a3yGZZHdnOAd78Q10S-1izwG3BrAKHoaWAymfdDJFFrpmxl3KFOJMZLajhc2T3TqjkbD1KOqwNAJyQj4j7ldDufpG2oT7NxTxMzl3gZxYGwiMrAOKp7-0p0TKwpLfDaXDO8xDwOYgJMH3uI06DdQKrHlPg7llpg6Yu`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      data,
-      convertTo: "pdf"
-    })
+    body: bodyString
   };
 
   try {
-    // 🔁 Call with retry
+    // 🔁 Call with retry - TEMPORARILY COMMENTED FOR PAYLOAD SIZE TESTING
+    /*
     const res = await fetchWithRetry(url, options, 2);
 
     // Convert to PDF buffer
@@ -181,6 +278,17 @@ export async function POST(req) {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": "inline; filename=etude_enedis.pdf"
+      }
+    });
+    */
+
+    // TEMPORARY: Return payload size info instead of PDF
+    return NextResponse.json({
+      message: "Carbone.io call disabled for testing",
+      payloadSize: {
+        bytes: bodySizeBytes,
+        kb: bodySizeKB,
+        mb: bodySizeMB
       }
     });
 
