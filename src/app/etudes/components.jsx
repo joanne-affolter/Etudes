@@ -30,10 +30,14 @@ function getColumns(label, onAction) {
             <Space size="middle">
             {isEnCours ? (
                 <Popconfirm
-                title="Archiver cette étude ?"
+                title="Supprimer cette étude ?"
+                description="Attention : Cette action est irréversible. Toutes les données et images seront définitivement supprimées."
                 onConfirm={() => onAction(record, "archives")}
+                okText="Supprimer"
+                cancelText="Annuler"
+                okButtonProps={{ danger: true }}
                 >
-                <Button type="primary">Archiver</Button>
+                <Button type="primary" danger>Supprimer</Button>
                 </Popconfirm>
             ) : (
                 <Popconfirm
