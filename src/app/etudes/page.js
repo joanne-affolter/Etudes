@@ -5,7 +5,7 @@ import { Layout, Menu, Popover, Flex, Button } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, HomeOutlined } from "@ant-design/icons";
 
 import { Accueil, EnCours, Archives, DrawerNew } from './components';
-import {fetchProjects, createProject, updateStatut} from './data';
+import { fetchProjects, createProject, updateStatut } from './data';
 
 import Image from 'next/image';
 
@@ -35,7 +35,7 @@ function getItem(label, key, icon, children) {
 const items = [
   getItem('Accueil', 'accueil', <HomeOutlined />),
   getItem('En Cours', 'en-cours', <CheckCircleOutlined />),
-  getItem('Archivés', 'archives', <CloseCircleOutlined />),
+  // getItem('Archivés', 'archives', <CloseCircleOutlined />),
 ];
 
 
@@ -48,9 +48,9 @@ export default function DashboardLayout({ children }) {
 
   const renderScreen = () => {
     switch (selected) {
-      case 'en-cours':   return <EnCours data={dataEnCours} onAction={onAction}/>;
-      case 'archives': return <Archives data={dataArchives}  onAction={onAction} />;
-      default:         return <Accueil />;
+      case 'en-cours': return <EnCours data={dataEnCours} onAction={onAction} />;
+      //case 'archives': return <Archives data={dataArchives} onAction={onAction} />;
+      default: return <Accueil />;
     }
   };
 
@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }) {
     //createProject({ reference: 'Proj-002', adresse: '123 Main St, GhostVille', statut: 'archives' });
     fetchProjects().then(projects => {
       setDataEnCours(projects.filter(project => project.statut === 'en-cours'));
-      setDataArchives(projects.filter(project => project.statut === 'archives'));
+      //setDataArchives(projects.filter(project => project.statut === 'archives'));
     });
   }, []);
 
@@ -76,22 +76,22 @@ export default function DashboardLayout({ children }) {
       if (next === "archives") {
         // SUPPRIMER complètement le projet et toutes ses données
         setDataEnCours(prev => prev.filter(p => (p.id ?? p.key) !== id));
-        
+
         // Appeler la route DELETE pour supprimer le projet et tous ses blobs
         const response = await fetch(`/api/etudes/${id}/delete`, {
           method: 'DELETE',
         });
-        
+
         if (!response.ok) {
           const error = await response.json();
           throw new Error(error.error || 'Failed to delete project');
         }
-        
+
         const result = await response.json();
         console.log('[delete-project] Success:', result);
-        
+
       } else if (next === "en-cours") {
-        setDataArchives(prev => prev.filter(p => (p.id ?? p.key) !== id));
+        //setDataArchives(prev => prev.filter(p => (p.id ?? p.key) !== id));
         setDataEnCours(prev => [{ ...record, statut: "en-cours" }, ...prev]);
         await updateStatut(id, next); // backend call
       } else if (next === "modifier") {
@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }) {
         router.push(`/etudes/${id}`); // Navigate to edit page
       }
 
-      
+
     } catch (e) {
       console.error("Action failed:", e);
       // TODO: revert optimistic state if needed
@@ -132,28 +132,28 @@ export default function DashboardLayout({ children }) {
     >
       {/* Header (independent) */}
       <Header style={{ padding: '0 24px', backgroundColor: 'var(--color-primary)' }} >
-      <Flex justify="space-between"  align="center">
-          <Image src="/logo.png" alt="Logo" width={50} height={50}             
+        <Flex justify="space-between" align="center">
+          <Image src="/logo.png" alt="Logo" width={50} height={50}
             style={{
               padding: 0,
-              margin: 0, 
-            }} 
+              margin: 0,
+            }}
           />
           <h1 style={{ color: 'var(--color-white)', margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>Etude ENEDIS</h1>
-          
-            <DrawerNew onAction={onSaveNew}/>
-          
+
+          <DrawerNew onAction={onSaveNew} />
+
         </Flex>
-      
+
       </Header>
 
       {/* Main zone grows to fill space */}
-      <Layout style={{ flex: 1, minHeight: 0, backgroundColor: 'var(--color-background)'}}>
+      <Layout style={{ flex: 1, minHeight: 0, backgroundColor: 'var(--color-background)' }}>
 
-          <Sider
-            breakpoint="lg"
-            collapsedWidth="0"
-          >
+        <Sider
+          breakpoint="lg"
+          collapsedWidth="0"
+        >
 
           <Menu selectedKeys={[selected]} onClick={({ key }) => setSelected(key)} mode="inline" items={items} style={{ padding: '30px 0', height: '100%' }} />
 
@@ -162,21 +162,21 @@ export default function DashboardLayout({ children }) {
 
         {/* Right column */}
         <Layout>
-          
+
           <Content className="m-0 overflow-auto h-full">
             <div className="bg-white m-12 rounded-lg relative ">
 
               {renderScreen()}
             </div>
           </Content>
-           {/* Footer (independent, always at bottom) */}
+          {/* Footer (independent, always at bottom) */}
           <Footer style={{ textAlign: 'center', backgroundColor: 'var(--color-secondary)' }}>
             Reve Apps ©{new Date().getFullYear()} Created by J. Affolter
           </Footer>
         </Layout>
       </Layout>
 
-     
+
     </Layout>
   );
 }
