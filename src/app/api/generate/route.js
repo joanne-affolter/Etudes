@@ -268,7 +268,7 @@ export async function POST(req) {
 
   try {
     // 🔁 Call with retry - TEMPORARILY COMMENTED FOR PAYLOAD SIZE TESTING
-    /*
+
     const res = await fetchWithRetry(url, options, 2);
 
     // Convert to PDF buffer
@@ -280,9 +280,10 @@ export async function POST(req) {
         "Content-Disposition": "inline; filename=etude_enedis.pdf"
       }
     });
-    */
+
 
     // TEMPORARY: Return payload size info instead of PDF
+    /*
     return NextResponse.json({
       message: "Carbone.io call disabled for testing",
       payloadSize: {
@@ -291,6 +292,7 @@ export async function POST(req) {
         mb: bodySizeMB
       }
     });
+    **/
 
   } catch (err) {
     // 🎯 Return full error to frontend
