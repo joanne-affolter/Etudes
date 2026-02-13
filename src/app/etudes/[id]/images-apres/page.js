@@ -27,8 +27,8 @@ import { upload } from '@vercel/blob/client';
 const { TextArea } = Input;
 
 // Image compression - Optimisé pour réduire la taille
-// maxWidth réduit à 1024px, quality à 0.6 (60%) pour un meilleur ratio qualité/taille
-async function compressImage(file, maxWidth = 1024, quality = 0.6) {
+// maxWidth réduit à 800px, quality à 0.4 (40%) pour minimiser le payload Carbone.io
+async function compressImage(file, maxWidth = 800, quality = 0.4) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -54,7 +54,7 @@ async function compressImage(file, maxWidth = 1024, quality = 0.6) {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        
+
         // Amélioration du rendu pour de meilleures compressions
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
@@ -166,8 +166,8 @@ const InnerImageHandler = forwardRef(function ImageHandler({ initialFiles = [] }
   useImperativeHandle(ref, () => ({
     getOrderedFiles: () => [...fileList],
     updateFileUrl: (oldUrl, newUrl, newPathname) => {
-      setFileList(prev => prev.map(f => 
-        f.url === oldUrl 
+      setFileList(prev => prev.map(f =>
+        f.url === oldUrl
           ? { ...f, url: newUrl, pathname: newPathname, uid: newUrl }
           : f
       ));
@@ -539,7 +539,7 @@ export default function ImagesAvantPage() {
       // Télécharger l'image depuis le blob
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch image');
-      
+
       const blob = await response.blob();
       const file = new File([blob], pathname.split('/').pop() || 'image.jpg', {
         type: blob.type || 'image/jpeg',
@@ -576,7 +576,7 @@ export default function ImagesAvantPage() {
     try {
       const refs = panelRefs.current;
       const panels = Object.keys(refs).map(k => refs[k]).filter(Boolean);
-      
+
       let totalImages = 0;
       let compressedImages = 0;
 
@@ -587,13 +587,13 @@ export default function ImagesAvantPage() {
         if (!payload?.fileUrls) continue;
 
         const urls = payload.fileUrls.split(',').map(u => u.trim()).filter(Boolean);
-        
+
         for (let url of urls) {
           if (url.includes('.public.blob.vercel-storage.com')) {
             totalImages++;
             const pathname = new URL(url).pathname.replace(/^\/+/, '');
             const newUrl = await recompressBlobImage(url, pathname);
-            
+
             if (newUrl !== url) {
               compressedImages++;
               const newPathname = new URL(newUrl).pathname.replace(/^\/+/, '');
@@ -604,7 +604,7 @@ export default function ImagesAvantPage() {
       }
 
       console.log(`[Compress] Terminé: ${compressedImages}/${totalImages} images compressées`);
-      
+
       // Sauvegarder automatiquement en DB après la compression
       if (compressedImages > 0) {
         console.log('[Compress] Sauvegarde en DB des nouvelles URLs...');
@@ -614,7 +614,7 @@ export default function ImagesAvantPage() {
         }
         console.log('[Compress] ✓ Sauvegarde en DB réussie');
       }
-      
+
       return true;
     } catch (e) {
       console.error('[Compress] Erreur:', e);
