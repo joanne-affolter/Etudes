@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Popover, Flex, Button } from 'antd';
+import { Layout, Menu, Popover, Flex, Button, message } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, HomeOutlined } from "@ant-design/icons";
 
 import { Accueil, EnCours, Archives, DrawerNew } from './components';
@@ -43,6 +43,7 @@ export default function DashboardLayout({ children }) {
   const [selected, setSelected] = useState('accueil');
   const [dataEnCours, setDataEnCours] = useState([]);
   const [dataArchives, setDataArchives] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const router = useRouter();
 
@@ -68,12 +69,16 @@ export default function DashboardLayout({ children }) {
   // ________________________________________________________
   // Handle Archive / Restore / Edit
   const onAction = React.useCallback(async (record, action) => {
+    let hideLoading;
     try {
       const id = record.id ?? record.key; // whichever you have
       const next = action; // === "archive" ? "archives" : "en-cours";
 
       // optimistic update
       if (next === "archives") {
+        // Afficher le message de chargement
+        hideLoading = messageApi.loading('Suppression du projet en cours...', 0);
+
         // SUPPRIMER complètement le projet et toutes ses données
         setDataEnCours(prev => prev.filter(p => (p.id ?? p.key) !== id));
 
@@ -90,6 +95,10 @@ export default function DashboardLayout({ children }) {
         const result = await response.json();
         console.log('[delete-project] Success:', result);
 
+        // Fermer le message de chargement et afficher le succès
+        hideLoading();
+        messageApi.success('Projet supprimé avec succès !');
+
       } else if (next === "en-cours") {
         //setDataArchives(prev => prev.filter(p => (p.id ?? p.key) !== id));
         setDataEnCours(prev => [{ ...record, statut: "en-cours" }, ...prev]);
@@ -103,9 +112,12 @@ export default function DashboardLayout({ children }) {
 
     } catch (e) {
       console.error("Action failed:", e);
+      // Fermer le message de chargement si présent
+      if (hideLoading) hideLoading();
+      messageApi.error(`Erreur lors de la suppression : ${e.message}`);
       // TODO: revert optimistic state if needed
     }
-  }, [router]);
+  }, [router, messageApi]);
 
   const onSaveNew = React.useCallback(async (data) => {
     try {
@@ -130,6 +142,7 @@ export default function DashboardLayout({ children }) {
         flexDirection: 'column', // header (top) -> main (grow) -> footer (bottom)
       }}
     >
+      {contextHolder}
       {/* Header (independent) */}
       <Header style={{ padding: '0 24px', backgroundColor: 'var(--color-primary)' }} >
         <Flex justify="space-between" align="center">
