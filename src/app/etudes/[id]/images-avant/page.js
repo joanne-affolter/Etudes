@@ -26,8 +26,9 @@ import { upload } from '@vercel/blob/client';
 
 const { TextArea } = Input;
 
-// Image compression
-async function compressImage(file, maxWidth = 1280, quality = 0.7) {
+// Image compression - Optimisé pour réduire la taille
+// maxWidth réduit à 1024px, quality à 0.6 (60%) pour un meilleur ratio qualité/taille
+async function compressImage(file, maxWidth = 1024, quality = 0.6) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -53,6 +54,10 @@ async function compressImage(file, maxWidth = 1280, quality = 0.7) {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
+
+        // Amélioration du rendu pour de meilleures compressions
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
 
         canvas.toBlob(
@@ -62,6 +67,7 @@ async function compressImage(file, maxWidth = 1280, quality = 0.7) {
                 type: 'image/jpeg',
                 lastModified: Date.now(),
               });
+              console.log(`[Compression] ${file.name}: ${(file.size / 1024).toFixed(0)}KB → ${(blob.size / 1024).toFixed(0)}KB (${((1 - blob.size / file.size) * 100).toFixed(0)}% réduction)`);
               resolve(compressedFile);
             } else {
               reject(new Error('Canvas toBlob failed'));

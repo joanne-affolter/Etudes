@@ -54,6 +54,9 @@ export default function EtudeLayout({ children }) {
 
 const generatePDF = async () => {
   try {
+    if (!id) {
+      throw new Error("Missing project id");
+    }
     setIsGenerating(true);
 
     // 1) Fetch project data

@@ -14,7 +14,16 @@ export const GET = async () => {
 
 export const POST = async (req) => {
   const data = await req.json();
-  const { reference, adresse, statut } = data;
+  const reference = data?.reference?.trim();
+  const adresse = data?.adresse?.trim();
+  const statut = data?.statut?.trim();
+
+  if (!reference || !adresse || !statut) {
+    return new Response(JSON.stringify({ error: "reference, adresse, and statut are required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   try {
     const newProject = await prisma.project.create({

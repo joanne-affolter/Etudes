@@ -119,7 +119,7 @@ export async function POST(req) {
 
 import { NextRequest, NextResponse } from "next/server";
 
-async function fetchWithRetry(url, options, retries = 5) {
+async function fetchWithRetry(url, options, retries = 2) {
   let lastError = null;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -172,7 +172,7 @@ export async function POST(req) {
 
   try {
     // 🔁 Call with retry
-    const res = await fetchWithRetry(url, options, 5);
+    const res = await fetchWithRetry(url, options, 2);
 
     // Convert to PDF buffer
     const pdfBuffer = Buffer.from(await res.arrayBuffer());

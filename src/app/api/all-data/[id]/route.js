@@ -218,9 +218,8 @@ export const GET = async (req, { params }) => {
     // Fetch data from all tables
     const project = await prisma.project.findUnique({ where: { id } });
     const infosGenerales = await prisma.infosGenerales.findUnique({ where: { id } });
-    const contacts = await prisma.contact.findMany({ where: { id: id } });
+    const contacts = await prisma.contact.findUnique({ where: { id } }) || null;
     //const prefinancement = await prisma.prefinancement.findMany({ where: { id } });
-    //const contacts = await prisma.contact.findUnique({ where: { id } }) || null; // Fixed: was findMany
     const prefinancement = await prisma.prefinancement.findUnique({ where: { id } }) || null; // Fixed: was findMany
     const materials = await prisma.material.findMany({ where: { id } });
     const imagesRaw = await prisma.imageUpload.findMany({ where: { projectId: id } });
@@ -249,7 +248,7 @@ export const GET = async (req, { params }) => {
 
 
     // Create a list of objects based on number of parkings 
-    const nombre_parking = infosGenerales.nombre_parking;
+    const nombre_parking = Number(infosGenerales?.nombre_parking) || 0;
     const parkings = Array.from({ length: nombre_parking }, (_, i) => ({
       idx: i + 1,
     }));
@@ -259,7 +258,7 @@ export const GET = async (req, { params }) => {
     const result = {
       project,
       ...(infosGenerales || {}),
-      contacts,
+      contacts: contacts || {},
       prefinancement_obj,
       ...descriptionTechnique,
       ...flattenedMaterials,
