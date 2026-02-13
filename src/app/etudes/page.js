@@ -74,9 +74,22 @@ export default function DashboardLayout({ children }) {
 
       // optimistic update
       if (next === "archives") {
+        // SUPPRIMER complètement le projet et toutes ses données
         setDataEnCours(prev => prev.filter(p => (p.id ?? p.key) !== id));
-        setDataArchives(prev => [{ ...record, statut: "archives" }, ...prev]);
-        await updateStatut(id, next); // backend call
+        
+        // Appeler la route DELETE pour supprimer le projet et tous ses blobs
+        const response = await fetch(`/api/etudes/${id}/delete`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to delete project');
+        }
+        
+        const result = await response.json();
+        console.log('[delete-project] Success:', result);
+        
       } else if (next === "en-cours") {
         setDataArchives(prev => prev.filter(p => (p.id ?? p.key) !== id));
         setDataEnCours(prev => [{ ...record, statut: "en-cours" }, ...prev]);
