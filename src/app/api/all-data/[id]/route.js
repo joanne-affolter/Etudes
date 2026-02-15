@@ -218,7 +218,8 @@ export const GET = async (req, { params }) => {
     // Fetch data from all tables
     const project = await prisma.project.findUnique({ where: { id } });
     const infosGenerales = await prisma.infosGenerales.findUnique({ where: { id } });
-    const contacts = await prisma.contact.findUnique({ where: { id } }) || null;
+    //const contacts = await prisma.contact.findUnique({ where: { id } }) || null;
+    const contacts = await prisma.contact.findMany({ where: { id } }) || null;
     //const prefinancement = await prisma.prefinancement.findMany({ where: { id } });
     const prefinancement = await prisma.prefinancement.findUnique({ where: { id } }) || null; // Fixed: was findMany
     const materials = await prisma.material.findMany({ where: { id } });
@@ -258,7 +259,7 @@ export const GET = async (req, { params }) => {
     const result = {
       project,
       ...(infosGenerales || {}),
-      contacts: contacts || {},
+      contacts,
       prefinancement_obj,
       ...descriptionTechnique,
       ...flattenedMaterials,
