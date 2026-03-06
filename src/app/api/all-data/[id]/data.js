@@ -40,7 +40,7 @@ const lexique = [
 
 const travauxMapping = {
   confection_niche: { type_de_travaux: "Accueil par le Génie-Civil de l'immeuble de coffrets, armoires, mobilier…", descriptif_technique: "Confection de niche sur façade, encastrement du coffret sur façade, pose de coffret sur mur, etc.", realisation: "ENEDIS" },
-  coupe_feu: { type_de_travaux: "Accueil par le Génie-Civil de l'immeuble de coffrets, armoires, mobilier…", descriptif_technique: "Pose d'un coffret coupe-feu", realisation: "ENEDIS" },
+  coupe_feu: { type_de_travaux: "Accueil par le Génie-Civil de l'immeuble de coffrets, armoires, mobilier…", descriptif_technique: "Pose d'un coffrage coupe-feu", realisation: "ENEDIS" },
   creation_placard: { type_de_travaux: "Accueil par le Génie civil de l'immeuble de canalisation collective ou de travée", descriptif_technique: "Création d’un placard technique", realisation: "ENEDIS" },
   creation_tranchee: { type_de_travaux: "Accueil par le Génie Civil de l'immeuble de canalisation collective ou de travée", descriptif_technique: "Réalisation de tranchée, pose de fourreaux", realisation: "ENEDIS" },
   percements: { type_de_travaux: "Accueil par le Génie Civil de l'immeuble de canalisation collective ou de travée", descriptif_technique: "Percements supérieurs à 50 mm, etc.", realisation: "ENEDIS" },

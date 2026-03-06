@@ -10,7 +10,7 @@ import { generalUpdate, generalFetch } from "../../data";
 /* ---- Field definitions (unchanged) ---- */
 const checkboxFieldsEnedis = [
   { name: "confection_niche", label: "Confection de niche sur façade, encastrement du coffret sur façade, pose de coffret sur mur, etc." },
-  { name: "coupe_feu", label: "Pose d'un coffret coupe-feu" },
+  { name: "coupe_feu", label: "Pose d'un coffrage coupe-feu" },
   { name: "creation_placard", label: "Création d'un placard technique" },
   { name: "creation_tranchee", label: "Création de tranchée, pose de fourreaux" },
   { name: "percements", label: "Percements supérieurs à 50 mm, etc." },
