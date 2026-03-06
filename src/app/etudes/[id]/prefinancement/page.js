@@ -2,7 +2,7 @@
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from "react";
 import { Form, Checkbox, Button, Spin, message, Divider } from "antd";
-import { TypingAnimation  } from "../../../../components/ui/typing-animation";
+import { TypingAnimation } from "../../../../components/ui/typing-animation";
 import { SaveButton } from "../../../../components/general/saveButton";
 import { generalUpdate, generalFetch } from "../../data";
 
@@ -10,6 +10,7 @@ import { generalUpdate, generalFetch } from "../../data";
 /* ---- Field definitions (unchanged) ---- */
 const checkboxFieldsEnedis = [
   { name: "confection_niche", label: "Confection de niche sur façade, encastrement du coffret sur façade, pose de coffret sur mur, etc." },
+  { name: "coupe_feu", label: "Pose d'un coffret coupe-feu" },
   { name: "creation_placard", label: "Création d'un placard technique" },
   { name: "creation_tranchee", label: "Création de tranchée, pose de fourreaux" },
   { name: "percements", label: "Percements supérieurs à 50 mm, etc." },
@@ -37,7 +38,7 @@ const defaultValues = [
 
 export default function PrefinancementForm() {
   const { id } = useParams();
-    
+
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
@@ -65,9 +66,9 @@ export default function PrefinancementForm() {
     const values = await form.validateFields();
 
     const payload = {
-        id: parseInt(id, 10),
-        ...values,
-        };
+      id: parseInt(id, 10),
+      ...values,
+    };
 
     console.log("Saving values:", payload);
     try {
@@ -86,17 +87,17 @@ export default function PrefinancementForm() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-            <Spin size="large" tip="Chargement des données..." />
+          <Spin size="large" tip="Chargement des données..." />
         </div>
-    ) : (
-      <>
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={defaultValues}
-        >
+      ) : (
+        <>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={defaultValues}
+          >
             <Divider orientation="left" plain>
-                <span className="text-lg font-bold">Travaux annexes — ENEDIS</span>
+              <span className="text-lg font-bold">Travaux annexes — ENEDIS</span>
             </Divider>
             {checkboxFieldsEnedis.map(({ name, label }) => (
               <Form.Item key={name} name={name} valuePropName="checked" style={{ marginBottom: 8 }}>
@@ -104,9 +105,9 @@ export default function PrefinancementForm() {
               </Form.Item>
             ))}
 
-            <div className="my-15"/>
+            <div className="my-15" />
             <Divider orientation="left" plain>
-                <span className="text-lg font-bold">Travaux annexes — DEMANDEUR</span>
+              <span className="text-lg font-bold">Travaux annexes — DEMANDEUR</span>
             </Divider>
             {checkboxFieldsDemandeur.map(({ name, label }) => (
               <Form.Item key={name} name={name} valuePropName="checked" style={{ marginBottom: 8 }}>
@@ -114,11 +115,11 @@ export default function PrefinancementForm() {
               </Form.Item>
             ))}
 
-          <div className="flex align-center justify-start mt-10">
-            <SaveButton onSave={onSave} />     
-          </div>
-        </Form>
-      
+            <div className="flex align-center justify-start mt-10">
+              <SaveButton onSave={onSave} />
+            </div>
+          </Form>
+
         </>
       )}
     </div>
