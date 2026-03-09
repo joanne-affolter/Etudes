@@ -65,6 +65,7 @@ model Contact {
 model Prefinancement {
   id                  Int     @id
   confection_niche    Boolean
+  coupe_feu           Boolean @default(false)
   creation_placard    Boolean
   creation_tranchee   Boolean
   percements          Boolean
