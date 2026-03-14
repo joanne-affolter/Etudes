@@ -100,6 +100,7 @@ const getDescriptionTechnique = (infosTechniquesMeta) => {
   const descriptionTechnique = { description_technique: [] };
   infosTechniquesMeta.forEach((meta) => {
     descriptionTechnique.description_technique.push({
+      idx: meta.parking_idx,  // ← directly from the model
       value: meta.description || "",
     });
   });
@@ -250,16 +251,27 @@ export const GET = async (req, { params }) => {
 
     // Create a list of objects based on number of parkings 
     const nombre_parking = Number(infosGenerales?.nombre_parking) || 0;
-    const parkings = Array.from({ length: nombre_parking }, (_, i) => ({
-      idx: i + 1,
-    }));
+    //const parkings = Array.from({ length: nombre_parking }, (_, i) => ({
+    //  idx: i + 1,
+    //}));
+
+    // Parse parking_details from infosGenerales (it's a Json field, already parsed by Prisma)
+    const { parking_details: rawParkingDetails, ...infosGeneralesRest } = infosGenerales || {};
+
+    const parking_details = Array.isArray(rawParkingDetails)
+      ? rawParkingDetails.map((detail, i) => ({
+        idx: detail.idx ?? i + 1,
+        ...detail,
+      }))
+      : [];
+
 
     //console.log("images and descriptions", imagesAndDescriptions);
     console.log("repartitionPhases", repartitionPhases);
     console.log("parkings", parkings);
     const result = {
       project,
-      ...(infosGenerales || {}),
+      ...(infosGeneralesRest || {}),
       contacts,
       prefinancement_obj,
       ...descriptionTechnique,
@@ -268,7 +280,8 @@ export const GET = async (req, { params }) => {
       ...repartitionPhases,
       ...flattenedMaterielInfo,
       lexique,
-      parkings,
+      parking_details,  // ← replaces parkings
+      
     };
     console.log("Final result object:", result);
 
