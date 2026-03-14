@@ -205,18 +205,10 @@ export async function POST(req) {
     }
   }
 
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('📊 [Carbone.io] PAYLOAD SIZE ANALYSIS');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`🔸 JSON payload size: ${bodySizeBytes} bytes (${bodySizeKB} KB / ${bodySizeMB} MB)`);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
   // Extraire et analyser les images
   const imageUrls = extractImageUrls(data);
-  console.log(`\n🖼️  Found ${imageUrls.size} image URLs in payload`);
 
   if (imageUrls.size > 0) {
-    console.log('\n📸 Fetching image sizes...\n');
 
     let totalImageSize = 0;
     let imageCount = 0;
@@ -235,25 +227,11 @@ export async function POST(req) {
     const totalImageSizeKB = (totalImageSize / 1024).toFixed(2);
     const totalImageSizeMB = (totalImageSize / (1024 * 1024)).toFixed(2);
 
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📊 IMAGES SUMMARY');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`   • Total images: ${imageCount} (${imageUrls.size - imageCount} failed)`);
-    console.log(`   • Total images size: ${totalImageSize} bytes`);
-    console.log(`   • Total images size: ${totalImageSizeKB} KB`);
-    console.log(`   • Total images size: ${totalImageSizeMB} MB`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     const grandTotalBytes = bodySizeBytes + totalImageSize;
     const grandTotalKB = (grandTotalBytes / 1024).toFixed(2);
     const grandTotalMB = (grandTotalBytes / (1024 * 1024)).toFixed(2);
 
-    console.log('\n💰 ESTIMATED TOTAL COST');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`   🔸 JSON: ${bodySizeKB} KB`);
-    console.log(`   🔸 Images: ${totalImageSizeKB} KB`);
-    console.log(`   🔸 TOTAL: ${grandTotalBytes} bytes (${grandTotalKB} KB / ${grandTotalMB} MB)`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   }
 
   const options = {
