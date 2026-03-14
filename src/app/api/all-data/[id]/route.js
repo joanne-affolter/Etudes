@@ -256,6 +256,7 @@ export const GET = async (req, { params }) => {
 
     //console.log("images and descriptions", imagesAndDescriptions);
     console.log("repartitionPhases", repartitionPhases);
+    console.log("parkings", parkings);
     const result = {
       project,
       ...(infosGenerales || {}),
@@ -267,8 +268,9 @@ export const GET = async (req, { params }) => {
       ...repartitionPhases,
       ...flattenedMaterielInfo,
       lexique,
-      parkings
+      parkings,
     };
+    console.log("Final result object:", result);
 
     return new Response(JSON.stringify(result, null, 2), {
       headers: { "Content-Type": "application/json" },
