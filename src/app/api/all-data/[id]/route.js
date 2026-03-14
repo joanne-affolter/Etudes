@@ -268,7 +268,6 @@ export const GET = async (req, { params }) => {
 
     //console.log("images and descriptions", imagesAndDescriptions);
     console.log("repartitionPhases", repartitionPhases);
-    console.log("parkings", parkings);
     const result = {
       project,
       ...(infosGeneralesRest || {}),
