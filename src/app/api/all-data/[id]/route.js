@@ -100,7 +100,7 @@ const getDescriptionTechnique = (infosTechniquesMeta) => {
   const descriptionTechnique = { description_technique: [] };
   infosTechniquesMeta.forEach((meta) => {
     descriptionTechnique.description_technique.push({
-      idx: meta.parking_idx,  // ← directly from the model
+      idx: meta.parking_idx+1,  // ← directly from the model
       value: meta.description || "",
     });
   });
