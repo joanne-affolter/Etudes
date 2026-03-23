@@ -28,6 +28,7 @@ const checkboxFieldsDemandeur = [
   { name: "dta2", label: "Réalisation DTA (Dossier Technique d'Amiante), placé sous la responsabilité du Demandeur" },
   { name: "c15", label: "Travaux imposés par la norme C15-100" },
   { name: "stop_roues", label: "Stop-roues de protections des ouvrages" },
+  { name: "plantes", label: "Dépose de végétation (arbustes, haies, etc.)" },
 ];
 
 /* ---- Default values (all false) ---- */

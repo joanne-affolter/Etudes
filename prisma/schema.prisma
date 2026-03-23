@@ -80,6 +80,7 @@ model Prefinancement {
   dta2                Boolean
   c15                 Boolean
   stop_roues          Boolean @default(false) 
+  plantes             Boolean @default(false)
 }
 
 model Material {

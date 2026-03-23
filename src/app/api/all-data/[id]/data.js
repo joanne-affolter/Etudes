@@ -55,6 +55,8 @@ const travauxMapping = {
   dta2: { type_de_travaux: "Travaux de Génie-Civil ci-dessus présentant un seuil d’amiante supérieur aux normes", descriptif_technique: "Réalisation DTA (Dossier Technique d’Amiante), placé sous la responsabilité du Demandeur", realisation: "Demandeur" },
   c15: { type_de_travaux: "Création et/ou adaptation de la mise à la terre de l’immeuble", descriptif_technique: "Travaux imposés par la norme C15-100", realisation: "Demandeur" },
   stop_roues: { type_de_travaux: "Accueil par le génie civil d'ouvrages spécifiques", descriptif_technique: "Pose de stop-roues de protection des ouvrages ou arceaux de protection IRVE", realisation: "Demandeur" },
+  plantes: { type_de_travaux: "Accueil par le génie civil d'ouvrages spécifiques", descriptif_technique: "Dépose de végétation (arbustes, haies, etc.)", realisation: "Demandeur" },
+
 };
 
 export { tabConfigsInterieur, tabConfigsExterieur, travauxMapping, lexique };
