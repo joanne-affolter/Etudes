@@ -141,6 +141,7 @@ export default function ChantierDetailPage() {
   const [dis, setDis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [diDrawer, setDiDrawer] = useState(null); // null | 'new' | record
+  const [diSearch, setDiSearch] = useState('');
 
   const load = useCallback(async () => {
     const [c, d] = await Promise.all([fetchChantier(id), fetchDIs(id)]);
@@ -232,12 +233,23 @@ export default function ChantierDetailPage() {
           <div className="bg-white rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">DIs</h2>
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => setDiDrawer('new')}
-                className="!bg-[var(--color-secondary)] !text-[var(--color-black)] !border-0">
-                Nouvelle DI
-              </Button>
+              <div className="flex items-center gap-3">
+                <Input.Search
+                  placeholder="Rechercher par nom client"
+                  allowClear
+                  value={diSearch}
+                  onChange={e => setDiSearch(e.target.value)}
+                  style={{ width: 260 }}
+                />
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setDiDrawer('new')}
+                  className="!bg-[var(--color-secondary)] !text-[var(--color-black)] !border-0">
+                  Nouvelle DI
+                </Button>
+              </div>
             </div>
-            <TableTemplate columns={diColumns} data={dis} />
+            <TableTemplate columns={diColumns} data={dis.filter(d =>
+              !diSearch || (d.nom_client ?? '').toLowerCase().includes(diSearch.toLowerCase())
+            )} />
           </div>
         </div>
       </Content>

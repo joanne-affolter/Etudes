@@ -36,8 +36,8 @@ function formatDayMonth(val) {
 function ChantierFormFields({ personnelOptions }) {
   return (
     <>
-      <Form.Item name="adresse" label="Adresse"
-        rules={[{ required: true, message: "Veuillez entrer l'adresse" }]}>
+      <Form.Item name="adresse" label="Nom / Adresse"
+        rules={[{ required: true, message: "Veuillez entrer le nom / l'adresse" }]}>
         <Input placeholder="10 rue de la Paix" />
       </Form.Item>
 

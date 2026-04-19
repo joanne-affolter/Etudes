@@ -5,6 +5,10 @@ import { Layout, Menu, Flex } from 'antd';
 import { HomeOutlined, BuildOutlined, BarChartOutlined, TeamOutlined } from "@ant-design/icons";
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 import { Accueil, EnCours, PersonnelScreen, DrawerNew, DrawerEdit } from './components';
 import { GanttChart } from './GanttChart';
@@ -79,7 +83,16 @@ export default function ChantiersPage() {
       case 'planning': return (
         <div className="p-8">
           <h2 className="text-2xl font-bold mb-6">Planning</h2>
-          <GanttChart chantiers={chantiers} onRefresh={load} />
+          <GanttChart chantiers={chantiers
+            .filter(c => c.statut !== 'archive')
+            .sort((a, b) => {
+              const parse = s => s ? dayjs(s, 'DD/MM/YYYY') : null;
+              const da = parse(a.debut), db = parse(b.debut);
+              if (!da && !db) return 0;
+              if (!da) return 1;
+              if (!db) return -1;
+              return da.valueOf() - db.valueOf();
+            })} onRefresh={load} />
         </div>
       );
       case 'personnel': return <PersonnelScreen onRefresh={load} />;
