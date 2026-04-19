@@ -26,9 +26,9 @@ import { upload } from '@vercel/blob/client';
 
 const { TextArea } = Input;
 
-// Image compression - Optimisé pour réduire la taille
-// maxWidth réduit à 800px, quality à 0.4 (40%) pour minimiser le payload Carbone.io
-async function compressImage(file, maxWidth = 800, quality = 0.4) {
+// Image compression - compromis taille/qualite pour limiter le flou
+// 1200px + qualite 0.6 : plus net que 800/0.4, tout en restant compresse
+async function compressImage(file, maxWidth = 1200, quality = 0.6) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
