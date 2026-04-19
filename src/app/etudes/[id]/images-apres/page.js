@@ -575,20 +575,23 @@ export default function ImagesAvantPage() {
   const onCompress = async () => {
     try {
       const refs = panelRefs.current;
-      const panels = Object.keys(refs).map(k => refs[k]).filter(Boolean);
+
+      // Capture payloads BEFORE any state change to avoid reading stale React state later
+      const entries = Object.keys(refs)
+        .map(k => ({ panel: refs[k], payload: refs[k]?.getPayload?.() }))
+        .filter(e => e.panel && e.payload);
 
       let totalImages = 0;
       let compressedImages = 0;
+      const urlMap = new Map(); // oldUrl → newUrl
 
       console.log('[Compress] Début de la recompression...');
 
-      for (let panel of panels) {
-        const payload = panel.getPayload?.();
-        if (!payload?.fileUrls) continue;
-
+      for (const { panel, payload } of entries) {
+        if (!payload.fileUrls) continue;
         const urls = payload.fileUrls.split(',').map(u => u.trim()).filter(Boolean);
 
-        for (let url of urls) {
+        for (const url of urls) {
           if (url.includes('.public.blob.vercel-storage.com')) {
             totalImages++;
             const pathname = new URL(url).pathname.replace(/^\/+/, '');
@@ -596,8 +599,8 @@ export default function ImagesAvantPage() {
 
             if (newUrl !== url) {
               compressedImages++;
-              const newPathname = new URL(newUrl).pathname.replace(/^\/+/, '');
-              panel.updateFileUrl?.(url, newUrl, newPathname);
+              urlMap.set(url, newUrl);
+              panel.updateFileUrl?.(url, newUrl, new URL(newUrl).pathname.replace(/^\/+/, ''));
             }
           }
         }
@@ -605,13 +608,23 @@ export default function ImagesAvantPage() {
 
       console.log(`[Compress] Terminé: ${compressedImages}/${totalImages} images compressées`);
 
-      // Sauvegarder automatiquement en DB après la compression
       if (compressedImages > 0) {
+        // Build updated entries from captured payloads + urlMap (bypasses stale React state)
+        const updatedEntries = entries.map(({ payload }) => ({
+          ...payload,
+          fileUrls: (payload.fileUrls || '')
+            .split(',').map(u => u.trim()).filter(Boolean)
+            .map(u => urlMap.get(u) ?? u)
+            .join(', '),
+        }));
+
         console.log('[Compress] Sauvegarde en DB des nouvelles URLs...');
-        const saveResult = await onSave();
-        if (!saveResult) {
-          throw new Error('Échec de la sauvegarde en DB');
-        }
+        const res = await fetch('/api/images', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId: Number(id), section: 'apres', entries: updatedEntries }),
+        });
+        if (!res.ok) throw new Error('Échec de la sauvegarde en DB');
         console.log('[Compress] ✓ Sauvegarde en DB réussie');
       }
 

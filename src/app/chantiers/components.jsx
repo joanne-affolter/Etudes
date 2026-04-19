@@ -90,16 +90,28 @@ function ChantierFormFields({ personnelOptions }) {
 
 // ── Chantiers columns ─────────────────────────────────────────────────────────
 
-function getColumns(onAction, onEdit, onView) {
+function getColumns(onAction, onEdit, onView, totalPersonnelCount) {
   return [
     { title: 'Adresse',  dataIndex: 'adresse', key: 'adresse' },
-    { title: 'Ville',    dataIndex: 'ville',   key: 'ville' },
+    {
+      title: 'Ville',
+      dataIndex: 'ville',
+      key: 'ville',
+      width: 140,
+      sorter: (a, b) => (a.ville ?? '').localeCompare(b.ville ?? '', 'fr', { sensitivity: 'base' }),
+      sortDirections: ['ascend', 'descend'],
+    },
     { title: 'Type',     dataIndex: 'type',    key: 'type',
       render: (val) => TYPE_OPTIONS.find(o => o.value === val)?.label ?? val },
     { title: 'Début',    dataIndex: 'debut',   key: 'debut', render: (val) => formatDayMonth(val) },
     { title: 'Fin',      dataIndex: 'fin',     key: 'fin',   render: (val) => formatDayMonth(val) },
     { title: 'Personnel', dataIndex: 'personnel', key: 'personnel',
-      render: (val) => val?.length ? val.map(p => p.prenom).join(', ') : '—' },
+      render: (val) => {
+        const count = val?.length ?? 0;
+        if (!count) return '—';
+        if (totalPersonnelCount > 0 && count >= totalPersonnelCount) return 'Tous';
+        return val.map(p => p.prenom).join(', ');
+      } },
     { title: 'DIs', key: 'dis',
       render: (_, record) => {
         const total = record.dis_total ?? 0;
@@ -143,14 +155,51 @@ export function Accueil() {
 }
 
 export function EnCours({ data, onAction, onEdit, onView }) {
-  const columns = React.useMemo(() => getColumns(onAction, onEdit, onView), [onAction, onEdit, onView]);
+  const [search, setSearch] = useState('');
+  const [selectedType, setSelectedType] = useState();
+  const [totalPersonnelCount, setTotalPersonnelCount] = useState(0);
+
+  useEffect(() => {
+    fetchPersonnel().then((list) => setTotalPersonnelCount(list?.length ?? 0));
+  }, []);
+
+  const columns = React.useMemo(
+    () => getColumns(onAction, onEdit, onView, totalPersonnelCount),
+    [onAction, onEdit, onView, totalPersonnelCount]
+  );
+  const filteredData = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return data.filter((item) => {
+      const matchesSearch = !q || (item.adresse ?? '').toLowerCase().includes(q);
+      const matchesType = !selectedType || item.type === selectedType;
+      return matchesSearch && matchesType;
+    });
+  }, [data, search, selectedType]);
+
   return (
     <div className="flex flex-col gap-6 h-full w-full items-center justify-center py-10">
       <span className="pointer-events-none z-10 whitespace-pre-wrap bg-clip-text text-4xl font-bold leading-none tracking-tighter">
         Chantiers en Cours
       </span>
       <div className="pt-15 px-10 w-full">
-        <TableTemplate columns={columns} data={data} size="small" />
+        <div className="flex justify-end gap-3 mb-4">
+          <Select
+            placeholder="Filtrer par type"
+            allowClear
+            value={selectedType}
+            onChange={setSelectedType}
+            options={TYPE_OPTIONS}
+            style={{ width: 220 }}
+          />
+          <Input.Search
+            placeholder="Rechercher par nom / adresse"
+            allowClear
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: 320 }}
+          />
+        </div>
+        <TableTemplate columns={columns} data={filteredData} size="small" />
       </div>
     </div>
   );
@@ -279,6 +328,12 @@ export function DrawerNew({ onAction }) {
   const [submitting, setSubmitting] = useState(false);
   const [personnelOptions, setPersonnelOptions] = useState([]);
 
+  const openDrawer = () => {
+    form.resetFields();
+    form.setFieldsValue({ telephone: '06' });
+    setOpen(true);
+  };
+
   useEffect(() => {
     fetchPersonnel().then(list =>
       setPersonnelOptions(list.map(p => ({ value: p.id, label: `${p.prenom} ${p.nom}` })))
@@ -302,7 +357,7 @@ export function DrawerNew({ onAction }) {
   return (
     <>
       <Popover content="Créer un nouveau chantier">
-        <Button type="primary" onClick={() => setOpen(true)} icon={<PlusOutlined />}
+        <Button type="primary" onClick={openDrawer} icon={<PlusOutlined />}
           className="!bg-[var(--color-secondary)] !text-[var(--color-black)] !border-0 hover:!bg-[var(--color-secondary)]">
           Nouveau
         </Button>
