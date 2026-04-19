@@ -47,6 +47,9 @@ importers:
       dayjs:
         specifier: ^1.11.18
         version: 1.11.18
+      frappe-gantt:
+        specifier: ^1.2.2
+        version: 1.2.2
       lucide-react:
         specifier: ^0.544.0
         version: 0.544.0(react@19.1.0)
@@ -1377,6 +1380,9 @@ packages:
         optional: true
       react-dom:
         optional: true
+
+  frappe-gantt@1.2.2:
+    resolution: {integrity: sha512-1+uPNRa92LBIeKiZCVhJMiGIifJk5ONaoerXI8eBREXWRZGGoTJR5ATpMpsnAQcyBA6Gnq5wIht4eL+e4eHMBA==}
 
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
@@ -3978,6 +3984,8 @@ snapshots:
     optionalDependencies:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
+
+  frappe-gantt@1.2.2: {}
 
   function-bind@1.1.2: {}
 

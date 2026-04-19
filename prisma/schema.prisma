@@ -131,8 +131,60 @@ model ImageUpload {
 model Project {
   id          Int      @id @default(autoincrement())
   reference   String   @unique
-  adresse    String  
+  adresse    String
   statut      String
-  
+
+  createdAt DateTime @default(now())
+}
+
+
+// APP CHANTIERS
+
+model Chantier {
+  id              Int      @id @default(autoincrement())
+  adresse         String
+  code_postal     String
+  ville           String
+  numero_affaire  String?
+  type            String
+  statut          String
+  telephone       String
+  debut           String?
+  fin             String?
+
+  createdAt    DateTime      @default(now())
+  assignations Assignation[]
+  dis          DI[]
+}
+
+model Personnel {
+  id       Int    @id @default(autoincrement())
+  prenom   String
+  nom      String
+
+  assignations Assignation[]
+}
+
+model Assignation {
+  id          Int @id @default(autoincrement())
+  chantierId  Int
+  personnelId Int
+
+  chantier  Chantier  @relation(fields: [chantierId], references: [id])
+  personnel Personnel @relation(fields: [personnelId], references: [id])
+
+  @@unique([chantierId, personnelId])
+}
+
+model DI {
+  id            Int      @id @default(autoincrement())
+  nom_client    String
+  numero_box    String?
+  date          String?
+  planifie      Boolean  @default(false)
+  chantierId    Int
+
+  chantier Chantier @relation(fields: [chantierId], references: [id])
+
   createdAt DateTime @default(now())
 }

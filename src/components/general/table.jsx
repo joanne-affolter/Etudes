@@ -1,7 +1,7 @@
 import { Table } from "antd";
 
 
-export function TableTemplate({ columns, data, rowKey = "id" }) {
+export function TableTemplate({ columns, data, rowKey = "id", size = "middle" }) {
     console.log("Rendering TableTemplate with data:", data);
     console.log("Columns:", columns);
   return (
@@ -9,6 +9,7 @@ export function TableTemplate({ columns, data, rowKey = "id" }) {
       columns={columns} 
       dataSource={data} 
       rowKey={rowKey}
+      size={size}
       pagination={{ pageSize: 5 }} 
     />
   );
