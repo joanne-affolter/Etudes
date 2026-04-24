@@ -457,7 +457,8 @@ export default function ImagesAvantPage() {
         const key = `${row.title}|${row.parking_idx}`;
         map[key] = {
           description: row.description || '',
-          urls: parseUrls(row.fileUrls), // string in DB → array
+          urls: parseUrls(row.fileUrls),
+          is_compressed: row.is_compressed ?? false,
         };
       }
       setPresets(map);
@@ -576,7 +577,7 @@ export default function ImagesAvantPage() {
     try {
       const refs = panelRefs.current;
 
-      // Capture payloads BEFORE any state change to avoid reading stale React state later
+      // Capture payloads BEFORE any state change (avoids reading stale React state after setFileList)
       const entries = Object.keys(refs)
         .map(k => ({ panel: refs[k], payload: refs[k]?.getPayload?.() }))
         .filter(e => e.panel && e.payload);
@@ -584,12 +585,22 @@ export default function ImagesAvantPage() {
       let totalImages = 0;
       let compressedImages = 0;
       const urlMap = new Map(); // oldUrl → newUrl
+      const entryCompressed = new Map(); // payload ref → was compressed
 
       console.log('[Compress] Début de la recompression...');
 
-      for (const { panel, payload } of entries) {
+      for (const entry of entries) {
+        const { panel, payload } = entry;
+        const presetKey = `${payload.title}|${payload.parking_idx}`;
+
+        if (presets[presetKey]?.is_compressed) {
+          console.log(`[Compress] Skip (déjà compressé): ${payload.title} parking ${payload.parking_idx}`);
+          continue;
+        }
+
         if (!payload.fileUrls) continue;
         const urls = payload.fileUrls.split(',').map(u => u.trim()).filter(Boolean);
+        let entryHadCompression = false;
 
         for (const url of urls) {
           if (url.includes('.public.blob.vercel-storage.com')) {
@@ -599,24 +610,29 @@ export default function ImagesAvantPage() {
 
             if (newUrl !== url) {
               compressedImages++;
+              entryHadCompression = true;
               urlMap.set(url, newUrl);
               panel.updateFileUrl?.(url, newUrl, new URL(newUrl).pathname.replace(/^\/+/, ''));
             }
           }
         }
+
+        entryCompressed.set(payload, entryHadCompression);
       }
 
       console.log(`[Compress] Terminé: ${compressedImages}/${totalImages} images compressées`);
 
       if (compressedImages > 0) {
-        // Build updated entries from captured payloads + urlMap (bypasses stale React state)
-        const updatedEntries = entries.map(({ payload }) => ({
-          ...payload,
-          fileUrls: (payload.fileUrls || '')
-            .split(',').map(u => u.trim()).filter(Boolean)
-            .map(u => urlMap.get(u) ?? u)
-            .join(', '),
-        }));
+        const updatedEntries = entries
+          .filter(({ payload }) => entryCompressed.has(payload))
+          .map(({ payload }) => ({
+            ...payload,
+            fileUrls: (payload.fileUrls || '')
+              .split(',').map(u => u.trim()).filter(Boolean)
+              .map(u => urlMap.get(u) ?? u)
+              .join(', '),
+            is_compressed: entryCompressed.get(payload),
+          }));
 
         console.log('[Compress] Sauvegarde en DB des nouvelles URLs...');
         const res = await fetch('/api/images', {
@@ -625,6 +641,17 @@ export default function ImagesAvantPage() {
           body: JSON.stringify({ projectId: Number(id), section: 'apres', entries: updatedEntries }),
         });
         if (!res.ok) throw new Error('Échec de la sauvegarde en DB');
+
+        // Update local presets so a second click skips these entries immediately
+        setPresets(prev => {
+          const next = { ...prev };
+          updatedEntries.forEach(e => {
+            const k = `${e.title}|${e.parking_idx}`;
+            if (next[k]) next[k] = { ...next[k], is_compressed: e.is_compressed };
+          });
+          return next;
+        });
+
         console.log('[Compress] ✓ Sauvegarde en DB réussie');
       }
 
@@ -640,13 +667,14 @@ export default function ImagesAvantPage() {
       const refs = panelRefs.current;
       const entries = Object.keys(refs)
         .map(k => refs[k]?.getPayload?.())
-        .filter(Boolean);
+        .filter(Boolean)
+        .map(e => ({ ...e, is_compressed: false }));
 
-      // Attach the global "section" 
+      // Attach the global "section"
       const body = {
         projectId: Number(id),
         section: 'apres',
-        entries, // [{ title, parking_idx, description, fileUrls }]
+        entries, // [{ title, parking_idx, description, fileUrls, is_compressed }]
       };
 
       const res = await fetch('/api/images', {
