@@ -15,7 +15,7 @@ export async function POST(req) {
     // Upsert each entry (title + parking_idx unique per projectId+section)
     const results = [];
     for (const e of entries) {
-      const { title, parking_idx, description, fileUrls } = e || {};
+      const { title, parking_idx, description, fileUrls, is_compressed } = e || {};
       if (!title || typeof parking_idx !== 'number') continue;
 
       const row = await prisma.imageUpload.upsert({
@@ -27,7 +27,11 @@ export async function POST(req) {
             parking_idx,
           },
         },
-        update: { description: description ?? '', fileUrls: fileUrls ?? '' },
+        update: {
+          description: description ?? '',
+          fileUrls: fileUrls ?? '',
+          ...(is_compressed !== undefined && { is_compressed }),
+        },
         create: {
           projectId,
           section,
@@ -35,6 +39,7 @@ export async function POST(req) {
           parking_idx,
           description: description ?? '',
           fileUrls: fileUrls ?? '',
+          is_compressed: is_compressed ?? false,
         },
       });
 

@@ -122,8 +122,9 @@ model ImageUpload {
   title       String
   parking_idx Int
   description String
-  fileUrls    String  // multiple URLs per record
-  uploadedAt  DateTime @default(now())
+  fileUrls      String   // multiple URLs per record
+  is_compressed Boolean  @default(false)
+  uploadedAt    DateTime @default(now())
 
   @@unique([projectId, section, title, parking_idx])
 }
